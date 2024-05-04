@@ -1,12 +1,13 @@
 from typing import Union, List
 
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 
 class UserSchema(BaseModel):
     id: int
-    telegram_id: Union[int, None] = None
-    name: str
+    username: str
+    mail: EmailStr
+    password: str
     favorites: List[int]
 
     class Config:
@@ -14,7 +15,11 @@ class UserSchema(BaseModel):
 
 
 class UserSchemaAdd(BaseModel):
-    id: int
-    telegram_id: Union[int, None] = None
-    name: str
-    favorites: List[int]
+    username: str
+    mail: EmailStr
+    password: str
+
+
+class UserSchemaAuth(BaseModel):
+    login: str | EmailStr
+    password: str

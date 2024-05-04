@@ -9,17 +9,19 @@ from src.aggregator.database import User
 # ------------------ Add ------------------
 async def add_user(
         session_maker: async_sessionmaker,
-        telegram_id: int = -1,
-        name: str = '',
+        username: str,
+        mail: str,
+        password: str,
         favorites: List[int | None] = None
 ) -> User:
     if favorites is None:
         favorites = []
 
     user = User(
-        telegram_id=telegram_id,
-        name=name,
-        favorites=favorites
+        username=username,
+        mail=mail,
+        password=password,
+        favorites=favorites,
     )
 
     async with session_maker() as session:
@@ -38,18 +40,29 @@ async def get_user_by_id(
         stmt = select(User).where(User.id == user_id)
         user = await session.scalar(stmt)
 
-    return user
+        return user
 
 
-async def get_user_by_telegram_id(
+async def get_user_by_email(
         session_maker: async_sessionmaker,
-        telegram_id: int
+        mail: str
 ) -> User | None:
     async with session_maker() as session:
-        stmt = select(User).where(User.telegram_id == telegram_id).one()
+        stmt = select(User).where(User.mail == mail)
         user = await session.scalar(stmt)
 
-    return user
+        return user
+
+
+async def get_user_by_username(
+        session_maker: async_sessionmaker,
+        username: str
+) -> User | None:
+    async with session_maker() as session:
+        stmt = select(User).where(User.username == username)
+        user = await session.scalar(stmt)
+
+        return user
 
 
 # ------------------ Update ------------------
