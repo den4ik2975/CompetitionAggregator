@@ -2,7 +2,7 @@ from datetime import datetime
 from enum import Enum
 from typing import List
 
-from sqlalchemy import ForeignKey, JSON, DateTime, UniqueConstraint
+from sqlalchemy import ForeignKey, JSON, DateTime
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import Mapped, mapped_column, DeclarativeBase, relationship
 
@@ -23,7 +23,7 @@ class User(Base):
     username: Mapped[str]
     mail: Mapped[str]
     favorites: Mapped[List[int]]
-    participate: Mapped[List[int]]
+    participates: Mapped[List[int]]
     hashed_password: Mapped[str]
 
     notifications: Mapped[List["Notification"]] = relationship(back_populates="user")

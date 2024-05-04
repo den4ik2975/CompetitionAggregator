@@ -11,6 +11,7 @@ def logging_wrapper(func):
     async def wrapper(*args, **kwargs):
         with logger.contextualize(**kwargs), logger.catch():
             return await func(*args, **kwargs)
+
     return wrapper
 
 

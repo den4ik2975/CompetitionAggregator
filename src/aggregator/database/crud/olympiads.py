@@ -20,7 +20,6 @@ async def add_olympiad(
         site_data: str | None = None,
 
 ) -> Olympiad:
-
     if regions is None:
         regions = []
     if classes is None:
@@ -76,7 +75,6 @@ async def update_olympiad(
         olympiad: Olympiad,
         **kwargs
 ) -> Olympiad | None:
-
     if olympiad is not None:
         for key, value in kwargs.items():
             try:

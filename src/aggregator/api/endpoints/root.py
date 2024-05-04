@@ -1,12 +1,11 @@
 from typing import Annotated, List
 
-from fastapi import APIRouter, Depends, Body, Path
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
-from src.aggregator.service_layer import services
-from src.aggregator.api import session_service
 from src.aggregator.DTOs import OlympiadSchema
-
+from src.aggregator.api import session_service
+from src.aggregator.service_layer import services
 
 router_root = APIRouter(
     prefix="",
@@ -21,5 +20,3 @@ async def get_olympiads(
     olympiads = await services.get_olympiads(session_maker)
 
     return olympiads
-
-
