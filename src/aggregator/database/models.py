@@ -6,7 +6,7 @@ from sqlalchemy import ForeignKey, JSON, DateTime, UniqueConstraint
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import Mapped, mapped_column, DeclarativeBase, relationship
 
-from src.aggregator.DTOs import CommentSchema, UserSchema, NotificationSchema, OlympiadSchema
+from src.aggregator.DTOs import UserSchema, NotificationSchema, OlympiadSchema
 
 
 class Base(DeclarativeBase, AsyncAttrs):
@@ -23,8 +23,8 @@ class User(Base):
     username: Mapped[str]
     mail: Mapped[str]
     favorites: Mapped[List[int]]
+    password: Mapped[str]
 
-    comment: Mapped["Comment"] = relationship(back_populates="user", uselist=False)
     notifications: Mapped[List["Notification"]] = relationship(back_populates="user")
 
     def to_pydantic_model(self, model=UserSchema) -> UserSchema:
@@ -44,7 +44,6 @@ class Olympiad(Base):
     regions: Mapped[List[int]]
     site_data: Mapped[str | None]
 
-    comments: Mapped[List["Comment"]] = relationship(back_populates="olympiad")
     notifications: Mapped[List["Notification"]] = relationship(back_populates="olympiad")
 
     def to_pydantic_model(self, model=OlympiadSchema) -> OlympiadSchema:
@@ -63,25 +62,6 @@ class Notification(Base):
     olympiad: Mapped["Olympiad"] = relationship(back_populates="notifications")
 
     def to_pydantic_model(self, model=NotificationSchema) -> NotificationSchema:
-        return super().to_pydantic_model(model)
-
-
-class Comment(Base):
-    __tablename__ = "comments"
-
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True, nullable=False)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
-    olympiad_id: Mapped[int] = mapped_column(ForeignKey("olympiads.id"), nullable=False)
-    text: Mapped[str]
-
-    user: Mapped["User"] = relationship(back_populates="comment")
-    olympiad: Mapped["Olympiad"] = relationship(back_populates="comments")
-
-    __table_args__ = (
-        UniqueConstraint("user_id", "olympiad_id", name="unique_user_olympiad_comment"),
-    )
-
-    def to_pydantic_model(self, model=CommentSchema) -> CommentSchema:
         return super().to_pydantic_model(model)
 
 
