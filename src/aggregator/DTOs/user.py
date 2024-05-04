@@ -18,3 +18,8 @@ class UserSchemaAdd(BaseModel):
     username: str
     mail: EmailStr
     password: str
+
+
+class UserSchemaAuth(BaseModel):
+    login: str | EmailStr
+    password: str
