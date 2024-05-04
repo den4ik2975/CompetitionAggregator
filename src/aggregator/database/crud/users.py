@@ -87,22 +87,44 @@ async def update_user(
         return user
 
 
+async def update_user_favorites(
+        session_maker: async_sessionmaker,
+        user_id: int,
+        olympiad_id: int
+) -> User | None:
+    user = await get_user_by_id(session_maker, user_id)
+
+    if user is not None:
+        user.favorites.append(olympiad_id)
+        async with session_maker() as session:
+            session.add(user)
+            await session.commit()
+
+            return user
+
+
+async def update_user_participate(
+        session_maker: async_sessionmaker,
+        user_id: int,
+        olympiad_id: int
+) -> User | None:
+    user = await get_user_by_id(session_maker, user_id)
+
+    if user is not None:
+        user.participates.append(olympiad_id)
+        async with session_maker() as session:
+            session.add(user)
+            await session.commit()
+
+            return user
+
+
 async def update_user_by_id(
         session_maker: async_sessionmaker,
         user_id: int,
         **kwargs
 ) -> User | None:
     user = await get_user_by_id(session_maker=session_maker, user_id=user_id)
-    updated_user = await update_user(session_maker=session_maker, user=user, **kwargs)
-    return updated_user
-
-
-async def update_user_by_telegram_id(
-        session_maker: async_sessionmaker,
-        telegram_id: int,
-        **kwargs
-) -> User | None:
-    user = await get_user_by_telegram_id(session_maker=session_maker, telegram_id=telegram_id)
     updated_user = await update_user(session_maker=session_maker, user=user, **kwargs)
     return updated_user
 
@@ -118,3 +140,41 @@ async def delete_user_by_id(
         await session.delete(user)
 
         return user
+
+
+async def delete_user_favorite(
+        session_maker: async_sessionmaker,
+        user_id: int,
+        olympiad_id: int
+) -> User | None:
+    user = await get_user_by_id(session_maker, user_id)
+
+    if user is not None:
+        try:
+            user.favorites.remove(olympiad_id)
+            async with session_maker() as session:
+                session.add(user)
+                await session.commit()
+
+                return user
+        except ValueError:
+            return None
+
+
+async def delete_user_participate(
+        session_maker: async_sessionmaker,
+        user_id: int,
+        olympiad_id: int
+) -> User | None:
+    user = await get_user_by_id(session_maker, user_id)
+
+    if user is not None:
+        try:
+            user.favorites.remove(olympiad_id)
+            async with session_maker() as session:
+                session.add(user)
+                await session.commit()
+
+                return user
+        except ValueError:
+            return None

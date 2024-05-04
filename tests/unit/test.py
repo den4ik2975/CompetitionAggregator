@@ -1,9 +1,8 @@
 import asyncio
 
-from src.aggregator.database.crud import *
 from src.aggregator.database import get_session_maker
+from src.aggregator.database.crud import *
 
-from datetime import datetime
 
 async def test():
     date = datetime.now()
@@ -15,5 +14,6 @@ async def test():
     print(ntfs)
     for ntf in ntfs:
         print(ntf.id)
+
 
 asyncio.run(test())

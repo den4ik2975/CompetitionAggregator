@@ -1,18 +1,13 @@
 from datetime import datetime, timedelta
 from typing import Optional
 
-from fastapi import Depends, FastAPI, HTTPException, Request, Response, status
-from fastapi.responses import HTMLResponse
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from fastapi.templating import Jinja2Templates
+from fastapi import Depends
 from jose import jwt
-from passlib.context import CryptContext
-from pydantic import BaseModel, EmailStr
+from loguru import logger
 
 from src.aggregator.setup import SECRET_KEY, ALGORITHM, oauth2_scheme
 
 
-# Function to create an access token
 async def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
     if expires_delta:
@@ -23,6 +18,7 @@ async def create_access_token(data: dict, expires_delta: Optional[timedelta] = N
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
+    logger.info('Generated access token')
     return encoded_jwt
 
 
@@ -35,8 +31,5 @@ async def decode_access_token(access_token: str = Depends(oauth2_scheme)):
     except (jwt.JWTError, AttributeError):
         return None
 
+    logger.info('Decoded access token')
     return username
-
-# Route with different behavior for guests and authenticated users
-
-

@@ -1,12 +1,12 @@
-from typing import Annotated, List
+from typing import Annotated
 
-from fastapi import APIRouter, Depends, Body, Path, HTTPException, status, Response
+from fastapi import APIRouter, Depends, Body, HTTPException, status, Response
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
-from src.aggregator.service_layer import services
-from src.aggregator.api import session_service
 from src.aggregator.DTOs import UserSchemaAdd, UserSchema, UserSchemaAuth
+from src.aggregator.api import session_service
+from src.aggregator.service_layer import services
 
 router_auth = APIRouter(
     prefix="/auth",
@@ -41,14 +41,3 @@ async def login_user(
 
     response.set_cookie(key="access_token", value=f"Bearer {access_token}", httponly=True)
     return user
-
-
-
-
-
-
-
-
-
-
-

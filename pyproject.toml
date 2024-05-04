@@ -16,7 +16,7 @@ stackprinter = "^0.2.12"
 pydantic-settings = "^2.2.1"
 passlib = "^1.7.4"
 python-jose = "^3.3.0"
-pydantic = {extras = ["email"], version = "^2.7.1"}
+pydantic = { extras = ["email"], version = "^2.7.1" }
 
 
 [build-system]

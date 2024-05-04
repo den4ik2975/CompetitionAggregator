@@ -1,3 +1,3 @@
-from .users import *
-from .olympiads import *
 from .notifications import *
+from .olympiads import *
+from .users import *

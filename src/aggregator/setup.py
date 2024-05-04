@@ -1,9 +1,5 @@
-import asyncio
-
 from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
-
-from database.connection import get_session_maker
 
 SECRET_KEY = "b47f886c15c649ce3aded78f36f983ea"  # Replace with a secure secret key
 ALGORITHM = "HS256"

@@ -6,7 +6,6 @@ from src.aggregator.api.router import all_routers
 
 app = FastAPI()
 
-
 origins = [
     "https://ai.radolyn.com",
     "http://localhost:8000",
@@ -23,7 +22,6 @@ app.add_middleware(
 
 for router in all_routers:
     app.include_router(router)
-
 
 if __name__ == "__main__":
     uvicorn.run(app="app:app", reload=True)

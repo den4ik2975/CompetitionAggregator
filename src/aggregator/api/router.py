@@ -1,5 +1,7 @@
-from src.aggregator.api import comment_router
+from src.aggregator.api.endpoints import router_olympiad, router_root, router_auth
 
 all_routers = [
-    comment_router
+    router_olympiad,
+    router_root,
+    router_auth
 ]
