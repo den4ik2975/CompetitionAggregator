@@ -1,4 +1,4 @@
-from typing import Tuple, Type
+from typing import Tuple, Type, List
 
 from pydantic import BaseModel
 from pydantic_settings import (
@@ -9,15 +9,21 @@ from pydantic_settings import (
 )
 
 
-class TelegramSettings(BaseModel):
-    token: str
-    approval_code: str
-    set_commands: bool
+class EncryptionSettings(BaseSettings):
+    secret_key: str
+    algorithm: str
+    access_token_expire_minutes: int
 
 
-class OpenRouterSettings(BaseModel):
-    token: str
-    default_model: str
+class FastAPISettings(BaseSettings):
+    origins: List[str]
+
+
+class STMPSettings(BaseSettings):
+    server: str
+    name: str
+    password: str
+    port: str
 
 
 class DatabaseSettings(BaseModel):
@@ -25,8 +31,9 @@ class DatabaseSettings(BaseModel):
 
 
 class Settings(BaseSettings):
-    telegram: TelegramSettings
-    open_router: OpenRouterSettings
+    encryption: EncryptionSettings
+    stmp: STMPSettings
+    fastapi: FastAPISettings
     database: DatabaseSettings
 
     model_config = SettingsConfigDict(toml_file="config.toml")

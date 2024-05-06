@@ -7,7 +7,6 @@ from src.aggregator.api.router import all_routers
 app = FastAPI()
 
 origins = [
-    "https://ai.radolyn.com",
     "http://localhost:8000",
 ]
 

@@ -2,6 +2,7 @@ import asyncio
 
 from src.aggregator.database import get_session_maker
 from src.aggregator.database.crud import *
+from src.project_logging import logging_wrapper
 
 
 async def test():
@@ -16,4 +17,6 @@ async def test():
         print(ntf.id)
 
 
-asyncio.run(test())
+
+
+

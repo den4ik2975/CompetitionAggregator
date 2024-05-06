@@ -6,17 +6,21 @@ from sqlalchemy.ext.asyncio import async_sessionmaker
 from loguru import logger
 
 from src.aggregator.DTOs import OlympiadSchema, UserSchemaAdd, UserSchemaAuth, UserSchema
-from src.aggregator.api import session_service
-from src.aggregator.database import crud
+from src.aggregator.database import crud, get_session_maker
 from src.aggregator.service_layer import utils
 from src.aggregator.setup import pwd_context, ACCESS_TOKEN_EXPIRE_MINUTES, oauth2_scheme
+from src.config import Settings
 from src.project_logging import logging_wrapper
+
+
+def session_service():
+    return get_session_maker(Settings.database.connection_string)
 
 
 @logging_wrapper
 async def get_olympiad(
-        session_maker: async_sessionmaker,
-        olympiad_id: int
+        olympiad_id: int,
+        session_maker: async_sessionmaker = session_service(),
 ) -> OlympiadSchema:
     olympiad = await crud.get_olympiad_by_id(session_maker=session_maker,
                                              olympiad_id=olympiad_id)
@@ -27,7 +31,7 @@ async def get_olympiad(
 
 @logging_wrapper
 async def get_olympiads(
-        session_maker: async_sessionmaker,
+        session_maker: async_sessionmaker = session_service(),
 ) -> List[OlympiadSchema]:
     olympiads = await crud.get_all_olympiads(session_maker)
     dto_olympiads = [ol.to_dto_model() for ol in olympiads]
@@ -38,8 +42,8 @@ async def get_olympiads(
 
 @logging_wrapper
 async def get_user_by_id(
-        session_maker: async_sessionmaker,
-        user_id: int
+        user_id: int,
+        session_maker: async_sessionmaker = session_service(),
 ) -> UserSchema:
     user = await crud.get_user_by_id(session_maker=session_maker,
                                      user_id=user_id)
@@ -50,8 +54,8 @@ async def get_user_by_id(
 
 @logging_wrapper
 async def add_new_user(
-        session_maker: async_sessionmaker,
-        user: UserSchemaAdd
+        user: UserSchemaAdd,
+        session_maker: async_sessionmaker = session_service(),
 ) -> UserSchema:
     hashed_password = pwd_context.hash(user.password)
     user = await crud.add_user(session_maker=session_maker,
@@ -65,8 +69,8 @@ async def add_new_user(
 
 @logging_wrapper
 async def auth_user(
-        session_maker: async_sessionmaker,
-        user_login: UserSchemaAuth
+        user_login: UserSchemaAuth,
+        session_maker: async_sessionmaker = session_service(),
 ) -> Optional[(UserSchema, str)]:
     logger.info('Try user auth')
     user = await crud.get_user_by_email(session_maker=session_maker,
@@ -92,7 +96,7 @@ async def auth_user(
 
 @logging_wrapper
 async def is_authenticated(
-        session_maker: async_sessionmaker = Depends(session_service),
+        session_maker: async_sessionmaker = session_service(),
         access_token: str = Depends(oauth2_scheme)
 ) -> bool:
     logger.info('Auth check')
@@ -107,9 +111,9 @@ async def is_authenticated(
 
 @logging_wrapper
 async def add_user_favorite(
-        session_maker: async_sessionmaker,
         user_id: int,
-        olympiad_id: int
+        olympiad_id: int,
+        session_maker: async_sessionmaker = session_service(),
 ) -> UserSchema:
     user = await crud.update_user_favorites(session_maker=session_maker,
                                             user_id=user_id,
@@ -121,9 +125,9 @@ async def add_user_favorite(
 
 @logging_wrapper
 async def delete_user_favorite(
-        session_maker: async_sessionmaker,
         user_id: int,
-        olympiad_id: int
+        olympiad_id: int,
+        session_maker: async_sessionmaker = session_service(),
 ) -> UserSchema:
     user = await crud.delete_user_favorite(session_maker=session_maker,
                                            user_id=user_id,
@@ -135,9 +139,9 @@ async def delete_user_favorite(
 
 @logging_wrapper
 async def add_user_participate(
-        session_maker: async_sessionmaker,
         user_id: int,
-        olympiad_id: int
+        olympiad_id: int,
+        session_maker: async_sessionmaker = session_service(),
 ) -> UserSchema:
     user = await crud.update_user_participate(session_maker=session_maker,
                                               user_id=user_id,
@@ -149,9 +153,9 @@ async def add_user_participate(
 
 @logging_wrapper
 async def delete_user_participate(
-        session_maker: async_sessionmaker,
         user_id: int,
-        olympiad_id: int
+        olympiad_id: int,
+        session_maker: async_sessionmaker = session_service(),
 ) -> UserSchema:
     user = await crud.delete_user_favorite(session_maker=session_maker,
                                            user_id=user_id,

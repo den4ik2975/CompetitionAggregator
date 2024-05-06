@@ -3,7 +3,7 @@ import sys
 import stackprinter
 from loguru import logger
 
-from src.aggregator.database import crudd
+# from src.aggregator.database import crud
 from src.aggregator.database.models import LogTypes
 
 

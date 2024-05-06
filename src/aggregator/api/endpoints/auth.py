@@ -5,7 +5,6 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from src.aggregator.DTOs import UserSchemaAdd, UserSchema, UserSchemaAuth
-from src.aggregator.api import session_service
 from src.aggregator.service_layer import services
 
 router_auth = APIRouter(
@@ -17,9 +16,8 @@ router_auth = APIRouter(
 @router_auth.post("/register")
 async def register_user(
         user: Annotated[UserSchemaAdd, Body()],
-        session_maker: async_sessionmaker = Depends(session_service)
 ) -> UserSchema:
-    user = await services.add_new_user(session_maker=session_maker, user=user)
+    user = await services.add_new_user(user=user)
     return user
 
 
@@ -27,10 +25,9 @@ async def register_user(
 async def login_user(
         login_data: Annotated[OAuth2PasswordRequestForm, Depends()],
         response: Response,
-        session_maker: async_sessionmaker = Depends(session_service),
 ) -> UserSchema:
     user_login = UserSchemaAuth(login=login_data.username, password=login_data.password)
-    user, access_token = await services.auth_user(session_maker=session_maker, user_login=user_login)
+    user, access_token = await services.auth_user(user_login=user_login)
 
     if user is None:
         raise HTTPException(
