@@ -2,6 +2,7 @@ from typing import List
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import async_sessionmaker
+from sqlalchemy.orm import joinedload
 
 from src.aggregator.database import User
 

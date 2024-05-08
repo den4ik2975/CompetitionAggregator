@@ -41,7 +41,27 @@ async def add_prt(
     return user
 
 
-@router_user.delete('/{user_id}/favorites/{olympiad_id}')
+@router_user.delete('/{user_id}/participates/{olympiad_id}')
+async def delete_prt(
+        user_id: Annotated[int, Path()],
+        olympiad_id: Annotated[int, Path()],
+) -> UserSchema:
+    user = await services.delete_user_participate(user_id=user_id,
+                                                  olympiad_id=olympiad_id)
+    return user
+
+
+@router_user.post('/{user_id}/participates')
+async def add_prt(
+        user_id: Annotated[int, Path()],
+        olympiad_id: Annotated[int, Body()],
+) -> UserSchema:
+    user = await services.add_user_participate(user_id=user_id,
+                                               olympiad_id=olympiad_id)
+    return user
+
+
+@router_user.delete('/{user_id}/participates/{olympiad_id}')
 async def delete_prt(
         user_id: Annotated[int, Path()],
         olympiad_id: Annotated[int, Path()],

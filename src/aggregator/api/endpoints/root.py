@@ -1,7 +1,6 @@
-from typing import Annotated, List
+from typing import List
 
-from fastapi import APIRouter, Depends
-from sqlalchemy.ext.asyncio import async_sessionmaker
+from fastapi import APIRouter
 
 from src.aggregator.DTOs import OlympiadSchema
 from src.aggregator.service_layer import services

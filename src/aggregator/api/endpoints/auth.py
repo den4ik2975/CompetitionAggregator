@@ -2,7 +2,6 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Body, HTTPException, status, Response
 from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from src.aggregator.DTOs import UserSchemaAdd, UserSchema, UserSchemaAuth
 from src.aggregator.service_layer import services

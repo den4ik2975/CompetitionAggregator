@@ -246,4 +246,3 @@ cython_debug/
 config.toml
 data.sqlite
 data/
-!src/telegram/handlers/data

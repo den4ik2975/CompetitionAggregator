@@ -114,3 +114,15 @@ async def delete_notification_by_id(
         await session.delete(notification)
 
         return notification
+
+
+async def delete_notification_by_user_id(
+        session_maker: async_sessionmaker,
+        user_id: int
+) -> Notification | None:
+    notification = await get_notifications_by_user_id(session_maker=session_maker, user_id=user_id)
+
+    with session_maker() as session:
+        await session.delete(notification)
+
+        return notification

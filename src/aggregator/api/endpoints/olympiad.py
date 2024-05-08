@@ -1,7 +1,6 @@
-from typing import Annotated
+from typing import Annotated, Tuple
 
 from fastapi import APIRouter, Depends, Body, Path
-from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from src.aggregator.DTOs import OlympiadSchema, UserSchema
 from src.aggregator.service_layer import services
@@ -17,7 +16,8 @@ async def get_olympiad(
         olympiad_id: Annotated[int, Path()],
         user_id: Annotated[int, Body()],
         is_auth: Annotated[bool, Depends(services.is_authenticated)],
-) -> (OlympiadSchema, UserSchema):
+        response_model=Tuple[OlympiadSchema, UserSchema]
+):
     user = None
     if is_auth:
         user = await services.get_user_by_id(user_id=user_id)

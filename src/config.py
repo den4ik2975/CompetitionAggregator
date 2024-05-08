@@ -23,11 +23,15 @@ class STMPSettings(BaseSettings):
     server: str
     name: str
     password: str
-    port: str
+    port: int
 
 
 class DatabaseSettings(BaseModel):
     connection_string: str
+
+
+class RedisSettings(BaseModel):
+    broker_url: str
 
 
 class Settings(BaseSettings):
@@ -35,6 +39,7 @@ class Settings(BaseSettings):
     stmp: STMPSettings
     fastapi: FastAPISettings
     database: DatabaseSettings
+    redis: RedisSettings
 
     model_config = SettingsConfigDict(toml_file="config.toml")
 
