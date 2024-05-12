@@ -1,19 +1,13 @@
-from src.aggregator.database import get_session_maker
-from src.aggregator.database.crud import *
+import asyncio
+
+from src.aggregator.service_layer.utils import send_email
+from src.setup import setup_email_server
 
 
 async def test():
-    date = datetime.now()
-    strr = 'sqlite+aiosqlite:///data.db'
-    # await add_notification(await get_session_maker(strr), 1, 2, date)
-    # await add_user(await get_session_maker(strr))
-
-    ntfs = await get_all_notifications(await get_session_maker(strr))
-    print(ntfs)
-    for ntf in ntfs:
-        print(ntf.id)
+    server = await setup_email_server()
+    await send_email(server, 'den41k2975@yandex.ru', 'Notification test')
+    server.close()
 
 
-
-
-
+asyncio.run(test())

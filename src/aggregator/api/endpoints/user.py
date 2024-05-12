@@ -51,24 +51,32 @@ async def delete_prt(
     return user
 
 
-@router_user.post('/{user_id}/participates')
-async def add_prt(
+@router_user.get('/{user_id}/notifications')
+async def add_ntf(
         user_id: Annotated[int, Path()],
         olympiad_id: Annotated[int, Body()],
-) -> UserSchema:
-    user = await services.add_user_participate(user_id=user_id,
-                                               olympiad_id=olympiad_id)
-    return user
+):
+    has_notification = await services.get_notifications(user_id=user_id,
+                                                        olympiad_id=olympiad_id)
+    return {'has_notification': has_notification}
 
 
-@router_user.delete('/{user_id}/participates/{olympiad_id}')
-async def delete_prt(
+@router_user.post('/{user_id}/notifications')
+async def add_ntf(
+        user_id: Annotated[int, Path()],
+        olympiad_id: Annotated[int, Body()],
+):
+    await services.add_notifications(user_id=user_id,
+                                     olympiad_id=olympiad_id)
+
+
+@router_user.delete('/{user_id}/notifications/{olympiad_id}')
+async def delete_ntf(
         user_id: Annotated[int, Path()],
         olympiad_id: Annotated[int, Path()],
-) -> UserSchema:
-    user = await services.delete_user_participate(user_id=user_id,
-                                                  olympiad_id=olympiad_id)
-    return user
+):
+    await services.delete_notifications(user_id=user_id,
+                                        olympiad_id=olympiad_id)
 
 
 @router_user.get('/{user_id}')

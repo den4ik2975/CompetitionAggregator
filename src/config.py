@@ -41,7 +41,7 @@ class Settings(BaseSettings):
     database: DatabaseSettings
     redis: RedisSettings
 
-    model_config = SettingsConfigDict(toml_file="config.toml")
+    model_config = SettingsConfigDict(toml_file='config.toml')
 
     @classmethod
     def settings_customise_sources(

@@ -1,5 +1,4 @@
 from datetime import datetime
-from enum import Enum
 from typing import List
 
 from sqlalchemy import ForeignKey, JSON, DateTime
@@ -13,6 +12,8 @@ class Base(DeclarativeBase, AsyncAttrs):
     type_annotation_map = {List[int]: JSON()}
 
     def to_dto_model(self, model):
+        if model is None:
+            return None
         return model(**self.__dict__)
 
 
@@ -68,9 +69,3 @@ class Logs(Base):
     log_type: Mapped[int]
     date: Mapped[datetime] = mapped_column(DateTime)
     text: Mapped[str]
-
-
-class LogTypes(Enum):
-    system = 0
-    exceptions = 1
-    user = 2

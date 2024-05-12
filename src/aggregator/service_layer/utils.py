@@ -1,11 +1,32 @@
+import asyncio
+import smtplib
 from datetime import datetime, timedelta, timezone
+from enum import Enum
 from typing import Optional
 
+import stackprinter
 from fastapi import Depends
 from jose import jwt
 from loguru import logger
 
-from src.setup import oauth2_scheme, settings
+from src.aggregator.database import crud
+from src.setup import oauth2_scheme, settings, get_session_maker
+
+
+def add_session_maker(func):
+    async def wrapper(*args, **kwargs):
+        session_maker = await get_session_maker()
+        return await func(session_maker=session_maker, *args, **kwargs)
+
+    return wrapper
+
+
+def logging_wrapper(func):
+    async def wrapper(*args, **kwargs):
+        with logger.contextualize(**kwargs), logger.catch():
+            return await func(*args, **kwargs)
+
+    return wrapper
 
 
 async def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
@@ -33,3 +54,47 @@ async def decode_access_token(access_token: str = Depends(oauth2_scheme)):
 
     logger.info('Decoded access token')
     return username
+
+
+@logging_wrapper
+async def send_email(email_server: smtplib.SMTP_SSL, receiver_email: str, body: str):
+    email_server.sendmail(settings.stmp.name, receiver_email, body)
+
+    logger.info(f'Sent email to {receiver_email}')
+
+
+def async_logging_binder():
+    asyncio.run(logger.bind(async_logging_binder=database_sink).enqueue(database_sink).start())
+
+
+async def database_sink(message):
+    session_maker = await get_session_maker()
+    record = message.record
+
+    user_id = record["extra"]["user_id"]
+    level = record["level"].name
+    text = record["message"]
+    if record["exception"]:
+        text += "\n" + stackprinter.format(record["exception"])
+
+    if level in ("ERROR", "CRITICAL", "EXCEPTION"):
+        log_type = LogTypes.exceptions
+    else:
+        log_type = LogTypes.user if user_id else LogTypes.system
+
+    await crud.add_log(
+        session_maker=session_maker,
+        user_id=user_id,
+        log_type=log_type.value,
+        date=datetime.now(),
+        text=text)
+
+
+def placeholder(*args, **kwargs):
+    pass
+
+
+class LogTypes(Enum):
+    system = 0
+    exceptions = 1
+    user = 2
