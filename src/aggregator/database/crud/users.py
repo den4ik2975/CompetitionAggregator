@@ -20,7 +20,7 @@ async def add_user(
     user = User(
         username=username,
         mail=mail,
-        password=password,
+        hashed_password=password,
         favorites=favorites,
     )
 

@@ -1,35 +1,38 @@
-from datetime import timedelta
-from typing import List, Optional
+from datetime import timedelta, datetime, timezone
+from typing import List, Optional, Tuple
 
 from fastapi import Depends
-from sqlalchemy.ext.asyncio import async_sessionmaker
 from loguru import logger
+from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from src.aggregator.DTOs import OlympiadSchema, UserSchemaAdd, UserSchemaAuth, UserSchema
-from src.aggregator.api import session_service
 from src.aggregator.database import crud
 from src.aggregator.service_layer import utils
-from src.aggregator.setup import pwd_context, ACCESS_TOKEN_EXPIRE_MINUTES, oauth2_scheme
-from src.project_logging import logging_wrapper
+from src.aggregator.service_layer.utils import add_session_maker, logging_wrapper
+from src.setup import pwd_context, oauth2_scheme, settings
 
 
 @logging_wrapper
+@add_session_maker
 async def get_olympiad(
+        olympiad_id: int,
         session_maker: async_sessionmaker,
-        olympiad_id: int
-) -> OlympiadSchema:
+) -> OlympiadSchema | None:
     olympiad = await crud.get_olympiad_by_id(session_maker=session_maker,
                                              olympiad_id=olympiad_id)
 
     logger.info('Got olympiad')
+    if olympiad is None:
+        return None
     return olympiad.to_dto_model()
 
 
 @logging_wrapper
+@add_session_maker
 async def get_olympiads(
         session_maker: async_sessionmaker,
 ) -> List[OlympiadSchema]:
-    olympiads = await crud.get_all_olympiads(session_maker)
+    olympiads = await crud.get_all_olympiads(session_maker=session_maker)
     dto_olympiads = [ol.to_dto_model() for ol in olympiads]
 
     logger.info('Got olympiads')
@@ -37,22 +40,26 @@ async def get_olympiads(
 
 
 @logging_wrapper
+@add_session_maker
 async def get_user_by_id(
+        user_id: int,
         session_maker: async_sessionmaker,
-        user_id: int
-) -> UserSchema:
+) -> UserSchema | None:
     user = await crud.get_user_by_id(session_maker=session_maker,
                                      user_id=user_id)
 
     logger.info('Got user')
+    if user is None:
+        return None
     return user.to_dto_model()
 
 
 @logging_wrapper
+@add_session_maker
 async def add_new_user(
+        user: UserSchemaAdd,
         session_maker: async_sessionmaker,
-        user: UserSchemaAdd
-) -> UserSchema:
+) -> UserSchema | None:
     hashed_password = pwd_context.hash(user.password)
     user = await crud.add_user(session_maker=session_maker,
                                username=user.username,
@@ -60,14 +67,17 @@ async def add_new_user(
                                password=hashed_password)
 
     logger.info('Added new user')
+    if user is None:
+        return None
     return user.to_dto_model()
 
 
 @logging_wrapper
+@add_session_maker
 async def auth_user(
+        user_login: UserSchemaAuth,
         session_maker: async_sessionmaker,
-        user_login: UserSchemaAuth
-) -> Optional[(UserSchema, str)]:
+) -> Optional[Tuple[UserSchema, str]]:
     logger.info('Try user auth')
     user = await crud.get_user_by_email(session_maker=session_maker,
                                         mail=user_login.login)
@@ -78,21 +88,22 @@ async def auth_user(
         return None
 
     if pwd_context.verify(user_login.password, user.hashed_password):
-        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token_expires = timedelta(minutes=settings.encryption.access_token_expire_minutes)
         access_token = await utils.create_access_token(
             data={"sub": user.username}, expires_delta=access_token_expires
         )
 
         logger.info('User auth success')
-        return user, access_token
+        return user.to_dto_model(), access_token
 
     logger.info('User auth failed')
     return None
 
 
 @logging_wrapper
+@add_session_maker
 async def is_authenticated(
-        session_maker: async_sessionmaker = Depends(session_service),
+        session_maker: async_sessionmaker,
         access_token: str = Depends(oauth2_scheme)
 ) -> bool:
     logger.info('Auth check')
@@ -106,56 +117,126 @@ async def is_authenticated(
 
 
 @logging_wrapper
+@add_session_maker
 async def add_user_favorite(
-        session_maker: async_sessionmaker,
         user_id: int,
-        olympiad_id: int
-) -> UserSchema:
+        olympiad_id: int,
+        session_maker: async_sessionmaker,
+) -> UserSchema | None:
     user = await crud.update_user_favorites(session_maker=session_maker,
                                             user_id=user_id,
                                             olympiad_id=olympiad_id)
 
     logger.info('Added user favorite')
+    if user is None:
+        return None
     return user.to_dto_model()
 
 
 @logging_wrapper
+@add_session_maker
 async def delete_user_favorite(
-        session_maker: async_sessionmaker,
         user_id: int,
-        olympiad_id: int
-) -> UserSchema:
+        olympiad_id: int,
+        session_maker: async_sessionmaker,
+) -> UserSchema | None:
     user = await crud.delete_user_favorite(session_maker=session_maker,
                                            user_id=user_id,
                                            olympiad_id=olympiad_id)
 
     logger.info('Deleted user favorite')
+    if user is None:
+        return None
     return user.to_dto_model()
 
 
 @logging_wrapper
+@add_session_maker
 async def add_user_participate(
-        session_maker: async_sessionmaker,
         user_id: int,
-        olympiad_id: int
-) -> UserSchema:
+        olympiad_id: int,
+        session_maker: async_sessionmaker,
+) -> UserSchema | None:
     user = await crud.update_user_participate(session_maker=session_maker,
                                               user_id=user_id,
                                               olympiad_id=olympiad_id)
 
     logger.info('Added user participation')
+    if user is None:
+        return None
     return user.to_dto_model()
 
 
 @logging_wrapper
+@add_session_maker
 async def delete_user_participate(
-        session_maker: async_sessionmaker,
         user_id: int,
-        olympiad_id: int
-) -> UserSchema:
+        olympiad_id: int,
+        session_maker: async_sessionmaker,
+) -> UserSchema | None:
     user = await crud.delete_user_favorite(session_maker=session_maker,
                                            user_id=user_id,
                                            olympiad_id=olympiad_id)
 
     logger.info('Deleted user participation')
+    if user is None:
+        return None
     return user.to_dto_model()
+
+
+@logging_wrapper
+@add_session_maker
+async def add_notifications(
+        user_id: int,
+        olympiad_id: int,
+        session_maker: async_sessionmaker,
+) -> bool:
+    user = await crud.get_user_by_id(session_maker=session_maker,
+                                     user_id=user_id)
+    olympiad = await crud.get_olympiad_by_id(session_maker=session_maker,
+                                             olympiad_id=olympiad_id)
+
+    if user is None or olympiad is None:
+        return False
+
+    date_now: datetime = datetime.now(tz=timezone.utc)
+    for olympiad_date in olympiad.dates:
+        if olympiad_date > (date_now + timedelta(days=user.n)):
+            await crud.add_notification(session_maker=session_maker,
+                                        user_id=user_id,
+                                        olympiad_id=olympiad_id,
+                                        date=olympiad_date)
+
+    return True
+
+
+@logging_wrapper
+@add_session_maker
+async def delete_notifications(
+        user_id: int,
+        olympiad_id: int,
+        session_maker: async_sessionmaker,
+) -> bool:
+    result = await crud.delete_notifications_by_user_and_olympiad_id(session_maker=session_maker,
+                                                                     user_id=user_id,
+                                                                     olympiad_id=olympiad_id)
+
+    if result is None:
+        return False
+    return True
+
+
+@logging_wrapper
+@add_session_maker
+async def get_notifications(
+        user_id: int,
+        olympiad_id: int,
+        session_maker: async_sessionmaker
+) -> bool:
+    notifications = await crud.get_notifications_by_user_and_olympiad_id(session_maker=session_maker,
+                                                                         user_id=user_id,
+                                                                         olympiad_id=olympiad_id)
+
+    if notifications:
+        return True
+    return False
