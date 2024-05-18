@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    background-color: #F4F4F4;
+    font-family: Montserrat, serif;
+    font-size: 18px;
+}
+
+.main {
+    width: 1100px;
+}
