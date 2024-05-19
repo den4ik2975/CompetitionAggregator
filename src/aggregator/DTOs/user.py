@@ -7,8 +7,10 @@ class UserSchema(BaseModel):
     id: int
     username: str
     mail: EmailStr
-    password: str
+    hashed_password: str
+    n: int
     favorites: List[int]
+    participates: List[int]
 
     class Config:
         from_attributes = True

@@ -12,22 +12,29 @@ async def add_user(
         username: str,
         mail: str,
         password: str,
-        favorites: List[int | None] = None
+        favorites: List[int | None] = None,
+        participates: List[int | None] = None,
 ) -> User:
     if favorites is None:
         favorites = []
+
+    if participates is None:
+        participates = []
 
     user = User(
         username=username,
         mail=mail,
         hashed_password=password,
         favorites=favorites,
+        n=7,
+        participates=participates
     )
 
     async with session_maker() as session:
         session.add(user)
         await session.commit()
 
+        print(user)
         return user
 
 
