@@ -4,10 +4,11 @@ from datetime import datetime
 from loguru import logger
 
 from src.aggregator.database import crud
-from src.aggregator.service_layer.utils import send_email
+from src.aggregator.service_layer.utils import send_email, logging_wrapper
 from src.setup import get_session_maker, setup_email_server
 
 
+@logging_wrapper
 async def send_notifications():
     start = 0
     end = 100

@@ -190,7 +190,7 @@ async def add_notifications(
         user_id: int,
         olympiad_id: int,
         session_maker: async_sessionmaker,
-) -> bool:
+) -> UserSchema | bool:
     user = await crud.get_user_by_id(session_maker=session_maker,
                                      user_id=user_id)
     olympiad = await crud.get_olympiad_by_id(session_maker=session_maker,
@@ -207,7 +207,7 @@ async def add_notifications(
                                         olympiad_id=olympiad_id,
                                         date=olympiad_date)
 
-    return True
+    return user.to_dto_model()
 
 
 @logging_wrapper
@@ -216,7 +216,7 @@ async def delete_notifications(
         user_id: int,
         olympiad_id: int,
         session_maker: async_sessionmaker,
-) -> bool:
+) -> UserSchema | bool:
     result = await crud.delete_notifications_by_user_and_olympiad_id(session_maker=session_maker,
                                                                      user_id=user_id,
                                                                      olympiad_id=olympiad_id)

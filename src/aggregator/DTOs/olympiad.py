@@ -8,12 +8,10 @@ class OlympiadSchema(BaseModel):
     id: int
     title: str
     level: Union[int, None] = None
-    dates: List[datetime]
+    dates: Dict[str, List[datetime]]
     description: str
     subjects: List[str]
     classes: List[int]
-    region: str
-    comments: Dict[int, str]
 
     class Config:
         from_attributes = True
@@ -29,12 +27,10 @@ class OlympiadSchema(BaseModel):
 class OlympiadSchemaAdd(BaseModel):
     title: str
     level: Union[int, None] = None
-    dates: List[datetime]
+    dates: Dict[str, List[datetime]]
     description: str
     subjects: List[str]
     classes: List[int]
-    region: str
-    comments: Dict[int, str]
 
     class Config:
         from_attributes = True
@@ -45,3 +41,12 @@ class OlympiadSchemaAdd(BaseModel):
         if v not in [None, 1, 2, 3]:
             raise ValueError('Must be None or int from 1 to 3')
         return v
+
+
+class OlympiadSchemaView(BaseModel):
+    id: int
+    title: str
+    date: datetime
+    description: str
+    classes: str  # 9-11 классы
+    subjects: str  # "{First}, {Second}"
