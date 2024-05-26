@@ -20,7 +20,40 @@ settings = Settings()
 def setup_fastapi() -> FastAPI:
     from src.aggregator.api.router import all_routers
 
-    app_fastapi = FastAPI()
+    tags_metadata = [
+        {
+            "name": "Auth",
+            "description": "User register and login here",
+        },
+        {
+            "name": "Olympiad",
+            "description": "Method for getting olympiad information",
+        },
+        {
+            "name": "Root",
+            "description": "Root endpoint. Returns short description of olympiads",
+        },
+        {
+            "name": "User",
+            "description": "Get user info",
+        },
+        {
+            "name": "Favorites",
+            "description": "Actions with favorites",
+        },
+        {
+            "name": "Participates",
+            "description": "Actions with participates",
+        },
+        {
+            "name": "Notifications",
+            "description": "Actions with notifications",
+        }
+    ]
+
+    app_fastapi = FastAPI(
+        title="Competition Aggregator API",
+        openapi_tags=tags_metadata)
 
     origins = settings.fastapi.origins
 

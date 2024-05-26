@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List
+from typing import List, Dict
 
 from sqlalchemy import ForeignKey, JSON, DateTime
 from sqlalchemy.ext.asyncio import AsyncAttrs
@@ -9,7 +9,8 @@ from src.aggregator.DTOs import UserSchema, NotificationSchema, OlympiadSchema
 
 
 class Base(DeclarativeBase, AsyncAttrs):
-    type_annotation_map = {List[int]: JSON()}
+    type_annotation_map = {List[int]: JSON(),
+                           List[str]: JSON()}
 
     def to_dto_model(self, model):
         if model is None:
@@ -38,11 +39,10 @@ class Olympiad(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True, nullable=False)
     title: Mapped[str]
     level: Mapped[int | None]
-    dates: Mapped[List[datetime]] = mapped_column(JSON)
+    dates: Mapped[Dict[str, List[datetime]]] = mapped_column(JSON)
     description: Mapped[str | None]
-    subjects: Mapped[List[int]]
+    subjects: Mapped[List[str]]
     classes: Mapped[List[int]]
-    regions: Mapped[List[int]]
     site_data: Mapped[str | None]
 
     def to_dto_model(self, model=OlympiadSchema) -> OlympiadSchema:

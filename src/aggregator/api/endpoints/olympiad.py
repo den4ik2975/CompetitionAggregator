@@ -1,4 +1,4 @@
-from typing import Annotated, Any, Union
+from typing import Annotated, Union, Dict
 
 from fastapi import APIRouter, Depends, Body, Path
 
@@ -16,8 +16,7 @@ async def get_olympiad(
         olympiad_id: Annotated[int, Path()],
         user_id: Annotated[int, Body()],
         is_auth: Annotated[bool, Depends(services.is_authenticated)],
-        response_model=dict[str, Union[OlympiadSchema, UserSchema]],
-) -> Any:
+) -> Dict[str, Union[OlympiadSchema, UserSchema]]:
     user = None
     if is_auth:
         user = await services.get_user_by_id(user_id=user_id)

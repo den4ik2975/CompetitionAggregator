@@ -1,4 +1,4 @@
-from typing import Any
+from typing import List
 
 from fastapi import APIRouter
 
@@ -12,9 +12,7 @@ router_root = APIRouter(
 
 
 @router_root.get("/")
-async def get_olympiads(
-        response_model=list[OlympiadSchema],
-) -> Any:
+async def get_olympiads() -> List[OlympiadSchema]:
     olympiads = await services.get_olympiads()
 
     return olympiads

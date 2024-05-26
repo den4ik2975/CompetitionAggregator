@@ -1,4 +1,4 @@
-from typing import Annotated, Any
+from typing import Annotated, Dict
 
 from fastapi import APIRouter, Depends, Body, HTTPException, status, Response
 from fastapi.security import OAuth2PasswordRequestForm
@@ -15,8 +15,7 @@ router_auth = APIRouter(
 @router_auth.post("/register")
 async def register_user(
         user: Annotated[UserSchemaAdd, Body()],
-        response_model=dict[str, UserSchema],
-) -> Any:
+) -> Dict[str, UserSchema]:
     user = await services.add_new_user(user=user)
     return {"User": user}
 
@@ -25,8 +24,7 @@ async def register_user(
 async def login_user(
         login_data: Annotated[OAuth2PasswordRequestForm, Depends()],
         response: Response,
-        response_model=dict[str, UserSchema]
-) -> Any:
+) -> Dict[str, UserSchema]:
     user_login = UserSchemaAuth(login=login_data.username, password=login_data.password)
     user, access_token = await services.auth_user(user_login=user_login)
 
