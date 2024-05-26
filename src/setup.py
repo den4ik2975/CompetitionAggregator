@@ -1,14 +1,14 @@
+import asyncio
 import smtplib
 import ssl
 import sys
 
-from celery import Celery
-from celery.schedules import crontab
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
 from loguru import logger
 from passlib.context import CryptContext
+from rocketry import Rocketry
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from src.aggregator.database.connection import initialize_database
@@ -72,19 +72,18 @@ def setup_fastapi() -> FastAPI:
     return app_fastapi
 
 
-def setup_celery() -> Celery:
+def setup_rocketry() -> None:
     from src.aggregator.service_layer.backgruond_tasks import send_notifications
 
-    celery_app = Celery('tasks', broker=settings.redis.broker_url + '0')
-    app_task_send_notifications = celery_app.task(send_notifications)
+    app_rocketry = Rocketry(execution="async")
 
-    celery_app.conf.beat_schedule = {
-        'run_every_24_hours': {
-            'task': 'celery_app.app_task_send_notifications',
-            'schedule': crontab(minute='0', hour='3'),
-        }}
+    @app_rocketry.task("daily between 03:00 and 04:00")
+    async def send_ntfs():
+        await asyncio.sleep(0)
 
-    return celery_app
+        await send_notifications()
+
+    asyncio.run(app_rocketry.serve())
 
 
 async def get_session_maker() -> async_sessionmaker:

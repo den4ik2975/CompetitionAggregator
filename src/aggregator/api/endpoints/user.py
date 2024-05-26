@@ -14,40 +14,40 @@ router_user = APIRouter(
 async def add_fav(
         user_id: Annotated[int, Path()],
         olympiad_id: Annotated[int, Body()],
-) -> Dict[str, UserSchema]:
+) -> UserSchema:
     user = await services.add_user_favorite(user_id=user_id,
                                             olympiad_id=olympiad_id)
-    return {"user": user}
+    return user
 
 
 @router_user.delete('/{user_id}/favorites/{olympiad_id}', tags=['Favorites'])
 async def delete_fav(
         user_id: Annotated[int, Path()],
         olympiad_id: Annotated[int, Path()],
-) -> Dict[str, UserSchema]:
+) -> UserSchema:
     user = await services.delete_user_favorite(user_id=user_id,
                                                olympiad_id=olympiad_id)
-    return {"user": user}
+    return user
 
 
 @router_user.post('/{user_id}/participates', tags=['Participates'])
 async def add_prt(
         user_id: Annotated[int, Path()],
         olympiad_id: Annotated[int, Body()],
-) -> Dict[str, UserSchema]:
+) -> UserSchema:
     user = await services.add_user_participate(user_id=user_id,
                                                olympiad_id=olympiad_id)
-    return {"user": user}
+    return user
 
 
 @router_user.delete('/{user_id}/participates/{olympiad_id}', tags=['Participates'])
 async def delete_prt(
         user_id: Annotated[int, Path()],
         olympiad_id: Annotated[int, Path()],
-) -> Dict[str, UserSchema]:
+) -> UserSchema:
     user = await services.delete_user_participate(user_id=user_id,
                                                   olympiad_id=olympiad_id)
-    return {"user": user}
+    return user
 
 
 @router_user.get('/{user_id}/notifications', tags=['Notifications'])
@@ -64,9 +64,11 @@ async def add_ntf(
 async def add_ntf(
         user_id: Annotated[int, Path()],
         olympiad_id: Annotated[int, Body()],
-):
-    await services.add_notifications(user_id=user_id,
+) -> UserSchema:
+    user = await services.add_notifications(user_id=user_id,
                                      olympiad_id=olympiad_id)
+
+    return user
 
 
 @router_user.delete('/{user_id}/notifications/{olympiad_id}', tags=['Notifications'])
@@ -81,6 +83,6 @@ async def delete_ntf(
 @router_user.get('/{user_id}', tags=['User'])
 async def go_to_user(
         user_id: Annotated[int, Path()],
-) -> Dict[str, UserSchema]:
+) -> UserSchema:
     user = await services.get_user_by_id(user_id=user_id)
-    return {"user": user}
+    return user
