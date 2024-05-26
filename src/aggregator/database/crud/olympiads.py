@@ -69,6 +69,14 @@ async def get_all_olympiads(
         return olympiads.all()
 
 
+async def search_for_olympiads(
+        session_maker: async_sessionmaker,
+        search_string: str
+) -> Sequence[Olympiad]:
+    async with session_maker() as session:
+        ...
+
+
 # ------------------ Update ------------------
 async def update_olympiad(
         session_maker: async_sessionmaker,

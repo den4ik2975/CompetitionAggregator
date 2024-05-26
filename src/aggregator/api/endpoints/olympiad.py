@@ -1,6 +1,7 @@
 from typing import Annotated, Union, Dict
 
 from fastapi import APIRouter, Depends, Body, Path
+from loguru import logger
 
 from src.aggregator.DTOs import OlympiadSchema, UserSchema
 from src.aggregator.service_layer import services
@@ -17,6 +18,8 @@ async def get_olympiad(
         user_id: Annotated[int, Body()],
         is_auth: Annotated[bool, Depends(services.is_authenticated)],
 ) -> Dict[str, Union[OlympiadSchema, UserSchema]]:
+    logger.info('Request for single olympiad')
+
     user = None
     if is_auth:
         user = await services.get_user_by_id(user_id=user_id)

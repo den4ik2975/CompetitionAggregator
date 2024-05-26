@@ -9,6 +9,7 @@ from fastapi import Depends
 from jose import jwt
 from loguru import logger
 
+from src.aggregator.DTOs.olympiad import OlympiadSchema
 from src.aggregator.database import crud
 from src.setup import oauth2_scheme, settings, get_session_maker
 
@@ -92,6 +93,42 @@ async def database_sink(message):
 
 def placeholder(*args, **kwargs):
     pass
+
+
+async def get_nearest_date(olympiad: OlympiadSchema) -> datetime:
+    now = datetime.now(tz=timezone.utc)
+
+    for dates in olympiad.dates.values():
+        if now < dates[0]:
+            return dates[0]
+
+
+async def humanize_classes(olympiad: OlympiadSchema) -> str:
+    classes = ''
+    if len(olympiad.classes) == 1:
+        classes = f'{olympiad.classes[1]} класс'
+    else:
+        classes = f'{min(olympiad.classes)} - {max(olympiad.classes)} классы'
+
+    return classes
+
+
+async def optimize_subjects(olympiad: OlympiadSchema) -> str:
+    language_flag = 0
+    subjects = ''
+
+    for subject in olympiad.subjects:
+        if 'язык' in subject.lower():
+            language_flag = 1
+        else:
+            subjects += '{' + f'{subject}' + '}, '
+
+    if language_flag is True:
+        subjects += '{Языковедение}'
+    else:
+        subjects = subjects[:-2]
+
+    return subjects
 
 
 class LogTypes(Enum):

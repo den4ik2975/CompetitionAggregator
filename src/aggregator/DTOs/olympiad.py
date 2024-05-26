@@ -38,8 +38,8 @@ class OlympiadSchemaAdd(BaseModel):
     @field_validator('level')
     @classmethod
     def check_level(cls, v):
-        if v not in [None, 1, 2, 3]:
-            raise ValueError('Must be None or int from 1 to 3')
+        if v not in [None, 0, 1, 2, 3]:
+            raise ValueError('Must be None or int from 0 to 3')
         return v
 
 
@@ -50,3 +50,6 @@ class OlympiadSchemaView(BaseModel):
     description: str
     classes: str  # 9-11 классы
     subjects: str  # "{First}, {Second}"
+    is_favorite: bool
+    is_notified: bool
+    is_participant: bool

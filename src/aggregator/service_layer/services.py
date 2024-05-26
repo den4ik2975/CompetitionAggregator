@@ -5,7 +5,7 @@ from fastapi import Depends
 from loguru import logger
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
-from src.aggregator.DTOs import OlympiadSchema, UserSchemaAdd, UserSchemaAuth, UserSchema
+from src.aggregator.DTOs import OlympiadSchema, UserSchemaAdd, UserSchemaAuth, UserSchema, OlympiadSchemaView
 from src.aggregator.database import crud
 from src.aggregator.service_layer import utils
 from src.aggregator.service_layer.utils import add_session_maker, logging_wrapper
@@ -30,13 +30,28 @@ async def get_olympiad(
 @logging_wrapper
 @add_session_maker
 async def get_olympiads(
+        auth: bool,
         session_maker: async_sessionmaker,
-) -> List[OlympiadSchema]:
+) -> List[OlympiadSchemaView]:
     olympiads = await crud.get_all_olympiads(session_maker=session_maker)
-    dto_olympiads = [ol.to_dto_model() for ol in olympiads]
 
-    logger.info('Got olympiads')
-    return dto_olympiads
+    card_olympiads = []
+    for olympiad in olympiads:
+        olympiad = olympiad.to_dto_model()
+
+        card_olympiad = OlympiadSchemaView(
+            id=olympiad.id,
+            title=olympiad.title,
+            description=olympiad.description,
+            date=utils.get_nearest_date(olympiad),
+            classes=utils.humanize_classes(olympiad),
+            subjects=utils.optimize_subjects(olympiad)
+        )
+
+        card_olympiads.append(card_olympiad)
+
+    logger.info('Got olympiad card')
+    return card_olympiads
 
 
 @logging_wrapper
@@ -107,6 +122,7 @@ async def is_authenticated(
         access_token: str = Depends(oauth2_scheme)
 ) -> bool:
     logger.info('Auth check')
+
     username = await utils.decode_access_token(access_token)
     user = await crud.get_user_by_username(session_maker=session_maker,
                                            username=username)

@@ -2,6 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Body, HTTPException, status, Response
 from fastapi.security import OAuth2PasswordRequestForm
+from loguru import logger
 
 from src.aggregator.DTOs import UserSchemaAdd, UserSchema, UserSchemaAuth
 from src.aggregator.service_layer import services
@@ -16,6 +17,8 @@ router_auth = APIRouter(
 async def register_user(
         user: Annotated[UserSchemaAdd, Body()],
 ) -> UserSchema:
+    logger.info(f"Request to register user: {user.username}")
+
     user = await services.add_new_user(user=user)
     return user
 
@@ -25,6 +28,8 @@ async def login_user(
         login_data: Annotated[OAuth2PasswordRequestForm, Depends()],
         response: Response,
 ) -> UserSchema:
+    logger.info(f"Request to login user: {login_data.username}")
+
     user_login = UserSchemaAuth(login=login_data.username, password=login_data.password)
     user, access_token = await services.auth_user(user_login=user_login)
 
