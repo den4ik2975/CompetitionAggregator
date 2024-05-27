@@ -1,10 +1,10 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Path, Request
+from fastapi import APIRouter, Depends, Path
 from loguru import logger
 from sqlalchemy.ext.asyncio import async_session
 
-from src.aggregator.DTOs import UserSchema, OlympiadSchemaOut
+from src.aggregator.DTOs import UserSchema, OlympiadSchemaView
 from src.aggregator.api.dependencies import get_db_session, get_auth
 from src.aggregator.service_layer import services
 
@@ -19,8 +19,7 @@ async def get_olympiad(
         olympiad_id: Annotated[int, Path()],
         auth: Annotated[UserSchema | bool, Depends(get_auth)],
         db_session: Annotated[async_session, Depends(get_db_session)],
-        request: Request,
-) -> OlympiadSchemaOut:
+) -> OlympiadSchemaView:
     logger.info('Request for single olympiad')
 
     olympiad = await services.get_olympiad(olympiad_id=olympiad_id,

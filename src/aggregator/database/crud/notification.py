@@ -12,18 +12,18 @@ async def add_notification(
         session: async_session,
         user_id: int,
         olympiad_id: int,
+        text: str,
         date: datetime
-) -> Notification:
+):
     notification = Notification(
         user_id=user_id,
         olympiad_id=olympiad_id,
+        text=text,
         date=date,
     )
 
     session.add(notification)
     await session.commit()
-
-    return notification
 
 
 # ------------------ Get ------------------

@@ -26,7 +26,7 @@ headers = {
 response = requests.request("POST", url + 'auth', headers=headers, data=payload1)
 print(response.text, response.cookies)
 
-response2 = requests.request("GET", url + '/', cookies=response.cookies)
+response2 = requests.request("GET", url + 'user/1/favorites', cookies=response.cookies)
 print(response2.status_code, response2.text)
 
 # response2 = requests.request("GET", url + '/')

@@ -2,14 +2,14 @@ import asyncio
 import smtplib
 from datetime import datetime, timedelta, timezone
 from enum import Enum
-from typing import Optional, Sequence, List
+from typing import Optional, Sequence, List, Dict
 
 import stackprinter
 from jose import jwt
 from loguru import logger
 
 from src.aggregator.DTOs import UserSchema
-from src.aggregator.DTOs.olympiad import OlympiadSchema, OlympiadSchemaView
+from src.aggregator.DTOs.olympiad import OlympiadSchema, OlympiadSchemaCard
 from src.aggregator.database import crud, Olympiad
 from src.setup import settings, get_session_maker
 
@@ -98,6 +98,15 @@ async def get_nearest_date(olympiad: OlympiadSchema) -> datetime:
             return temp
 
 
+async def get_nearest_date_str(olympiad: OlympiadSchema) -> str:
+    now = datetime.now()
+
+    for stage, dates in olympiad.dates.items():
+        temp = datetime.strptime(dates[0], '%Y-%m-%d')
+        if now < temp:
+            return f'{stage} - {temp.strftime("%b %d")}'
+
+
 async def humanize_classes(olympiad: OlympiadSchema) -> str:
     classes = ''
     if len(olympiad.classes) == 1:
@@ -116,10 +125,10 @@ async def optimize_subjects(olympiad: OlympiadSchema) -> str:
         if 'язык' in subject.lower():
             language_flag = 1
         else:
-            subjects += '{' + f'{subject}' + '}, '
+            subjects += f'{subject}' + ', '
 
     if language_flag is True:
-        subjects += '{Языковедение}'
+        subjects += 'Языковедение'
     else:
         subjects = subjects[:-2]
 
@@ -135,7 +144,7 @@ class LogTypes(Enum):
 async def convert_olympiads_to_view_format(
         olympiads: Sequence[Olympiad],
         auth: UserSchema | bool
-) -> List[OlympiadSchemaView]:
+) -> List[OlympiadSchemaCard]:
     card_olympiads = []
     is_favorite, is_notified, is_participant = False, False, False
     for olympiad in olympiads:
@@ -146,11 +155,12 @@ async def convert_olympiads_to_view_format(
             is_notified = olympiad.id in auth.notifications
             is_participant = olympiad.id in auth.participates
 
-        card_olympiad = OlympiadSchemaView(
+        card_olympiad = OlympiadSchemaCard(
             id=olympiad.id,
             title=olympiad.title,
             description=olympiad.description,
             date=await get_nearest_date(olympiad),
+            datestr=await get_nearest_date_str(olympiad),
             classes=await humanize_classes(olympiad),
             subjects=await optimize_subjects(olympiad),
             is_favorite=is_favorite,
@@ -161,3 +171,17 @@ async def convert_olympiads_to_view_format(
         card_olympiads.append(card_olympiad)
 
     return card_olympiads
+
+
+async def jsonify_dates(olympiad: OlympiadSchema) -> List[Dict[str, str]]:
+    result = []
+
+    for stage, dates in olympiad.dates.items():
+        temp = {'name': stage, 'date_start': dates[0]}
+
+        if len(dates) == 2:
+            temp['date_end'] = dates[1]
+
+        result.append(temp.copy())
+
+    return result

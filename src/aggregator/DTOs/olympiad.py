@@ -43,10 +43,11 @@ class OlympiadSchemaAdd(BaseModel):
         return v
 
 
-class OlympiadSchemaView(BaseModel):
+class OlympiadSchemaCard(BaseModel):
     id: int
     title: str
     date: datetime | None = None
+    datestr: str | None = None
     description: str
     classes: str  # 9-11 классы
     subjects: str  # "{First}, {Second}"
@@ -55,14 +56,15 @@ class OlympiadSchemaView(BaseModel):
     is_participant: bool = False
 
 
-class OlympiadSchemaOut(BaseModel):
+class OlympiadSchemaView(BaseModel):
     id: int
     title: str
     level: Union[int, None] = None
-    dates: Dict[str, List[str]]
+    dates: List[Dict[str, str]]
+    date: str | None = None
     description: str
     subjects: List[str]
-    classes: List[int]
+    classes: str
     is_favorite: bool = False
     is_notified: bool = False
     is_participant: bool = False

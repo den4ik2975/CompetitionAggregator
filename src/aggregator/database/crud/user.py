@@ -107,6 +107,39 @@ async def update_user_participate(
         return user
 
 
+async def update_user_notification(
+        session: async_session,
+        user_id: int,
+        olympiad_id: int
+) -> User | None:
+    user = await get_user_by_id(session, user_id)
+
+    if user is not None and olympiad_id not in user.notifications:
+        user.notifications.append(olympiad_id)
+
+        flag_modified(user, 'notifications')
+        session.add(user)
+        await session.commit()
+
+        return user
+
+
+async def update_user_n(
+        session: async_session,
+        user_id: int,
+        n: int
+) -> User | None:
+    user = await get_user_by_id(session, user_id)
+
+    if user is not None:
+        user.n = n
+
+        session.add(user)
+        await session.commit()
+
+        return user
+
+
 # ------------------ Delete ------------------
 async def delete_user_by_id(
         session: async_session,

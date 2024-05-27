@@ -1,6 +1,6 @@
 from typing import List, Sequence, Dict
 
-from sqlalchemy import select, or_, func
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import async_session
 from sqlalchemy.orm.attributes import flag_modified
 
@@ -70,19 +70,39 @@ async def search_for_olympiads(
         session: async_session,
         search_string: str
 ) -> Sequence[Olympiad]:
-    search_query = f"%{search_string.strip().lower()}%"
-
-    stmt = select(Olympiad).where(
-        or_(
-            func.lower(Olympiad.title).contains(search_query),
-            func.lower(Olympiad.subjects).contains(search_query)
+    search_pattern = f"%{search_string[1:-1].lower()}%"
+    stmt = (
+        select(Olympiad)
+        .where(
+            Olympiad.title.contains(search_pattern)
         )
     )
-
-    results = await session.scalars(stmt)
+    results = (await session.execute(stmt)).scalars().all()
 
     fixed_results = await olympiad_fixer(results)
     return fixed_results
+
+
+async def filter_olympiads(
+        subjects: List[str] | None,
+        grades: List[int] | None,
+        session: async_session
+) -> Sequence[Olympiad]:
+    all_olympiads = await get_all_olympiads(session=session)
+
+    if subjects is not None:
+        if 'Языковедение' in subjects:
+            subjects.remove('Языковедение')
+            subjects += ['Русский язык', 'Английский язык', 'Китайский язык', 'Испанский язык']
+
+        all_olympiads = list(
+            filter(lambda olympiad: any(subject in olympiad.subjects for subject in subjects), all_olympiads))
+
+    if grades is not None:
+        all_olympiads = list(
+            filter(lambda olympiad: any(grade in olympiad.classes for grade in grades), all_olympiads))
+
+    return all_olympiads
 
 
 # ------------------ Update ------------------

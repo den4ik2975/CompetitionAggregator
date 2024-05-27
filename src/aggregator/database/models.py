@@ -74,13 +74,13 @@ class Olympiad(Base):
         return super().to_dto_model(model)
 
 
-
 class Notification(Base):
     __tablename__ = "notifications"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True, nullable=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     olympiad_id: Mapped[int] = mapped_column(ForeignKey("olympiads.id"))
+    text: Mapped[str]
     date: Mapped[datetime] = mapped_column(DateTime)
 
     def to_dto_model(self, model=NotificationSchema) -> NotificationSchema:

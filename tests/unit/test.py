@@ -30,10 +30,15 @@ async def test():
             }
         }}
 
-    await crud.add_olympiad(session_maker=await get_session_maker(),
+    await crud.add_olympiad(session=(await get_session_maker())(),
                             title=dct["1"]["title"],
                             description=dct["1"]["description"],
                             subjects=dct["1"]["classes"],
                             classes=dct["1"]["grades"],
                             dates=dct['1']['timetable']
                             )
+
+
+async def test2():
+    from src.aggregator.database.crud import get_olympiad_by_id
+    await get_olympiad_by_id((await get_session_maker())(), 1)
