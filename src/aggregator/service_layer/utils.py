@@ -2,29 +2,23 @@ import asyncio
 import smtplib
 from datetime import datetime, timedelta, timezone
 from enum import Enum
-from typing import Optional
+from typing import Optional, Sequence, List
 
 import stackprinter
-from fastapi import Depends
 from jose import jwt
 from loguru import logger
 
-from src.aggregator.DTOs.olympiad import OlympiadSchema
-from src.aggregator.database import crud
-from src.setup import oauth2_scheme, settings, get_session_maker
-
-
-def add_session_maker(func):
-    async def wrapper(*args, **kwargs):
-        session_maker = await get_session_maker()
-        return await func(session_maker=session_maker, *args, **kwargs)
-
-    return wrapper
+from src.aggregator.DTOs import UserSchema
+from src.aggregator.DTOs.olympiad import OlympiadSchema, OlympiadSchemaView
+from src.aggregator.database import crud, Olympiad
+from src.setup import settings, get_session_maker
 
 
 def logging_wrapper(func):
     async def wrapper(*args, **kwargs):
-        with logger.contextualize(**kwargs), logger.catch():
+        filtered_kwargs = kwargs.copy()
+        filtered_kwargs.pop('db_session', None)
+        with logger.contextualize(**filtered_kwargs), logger.catch():
             return await func(*args, **kwargs)
 
     return wrapper
@@ -44,7 +38,7 @@ async def create_access_token(data: dict, expires_delta: Optional[timedelta] = N
     return encoded_jwt
 
 
-async def decode_access_token(access_token: str = Depends(oauth2_scheme)):
+async def decode_access_token(access_token: str):
     try:
         payload = jwt.decode(access_token, settings.encryption.secret_key, algorithms=[settings.encryption.algorithm])
         username: str = payload.get("sub")
@@ -84,7 +78,7 @@ async def database_sink(message):
         log_type = LogTypes.user if user_id else LogTypes.system
 
     await crud.add_log(
-        session_maker=session_maker,
+        session=session_maker(),
         user_id=user_id,
         log_type=log_type.value,
         date=datetime.now(),
@@ -136,3 +130,34 @@ class LogTypes(Enum):
     system = 0
     exceptions = 1
     user = 2
+
+
+async def convert_olympiads_to_view_format(
+        olympiads: Sequence[Olympiad],
+        auth: UserSchema | bool
+) -> List[OlympiadSchemaView]:
+    card_olympiads = []
+    is_favorite, is_notified, is_participant = False, False, False
+    for olympiad in olympiads:
+        olympiad = olympiad.to_dto_model()
+
+        if auth is not False:
+            is_favorite = olympiad.id in auth.favorites
+            is_notified = olympiad.id in auth.notifications
+            is_participant = olympiad.id in auth.participates
+
+        card_olympiad = OlympiadSchemaView(
+            id=olympiad.id,
+            title=olympiad.title,
+            description=olympiad.description,
+            date=await get_nearest_date(olympiad),
+            classes=await humanize_classes(olympiad),
+            subjects=await optimize_subjects(olympiad),
+            is_favorite=is_favorite,
+            is_notified=is_notified,
+            is_participant=is_participant
+        )
+
+        card_olympiads.append(card_olympiad)
+
+    return card_olympiads

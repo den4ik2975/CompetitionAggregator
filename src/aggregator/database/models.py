@@ -5,7 +5,6 @@ from typing import List, Dict
 from sqlalchemy import ForeignKey, DateTime, TypeDecorator, TEXT
 from sqlalchemy.dialects.sqlite import JSON
 from sqlalchemy.ext.asyncio import AsyncAttrs
-from sqlalchemy.ext.hybrid import hybrid_method
 from sqlalchemy.orm import Mapped, mapped_column, DeclarativeBase
 
 from src.aggregator.DTOs import UserSchema, NotificationSchema, OlympiadSchema
@@ -52,6 +51,7 @@ class User(Base):
     n: Mapped[int]
     favorites: Mapped[List[int]]
     participates: Mapped[List[int]]
+    notifications: Mapped[List[int]]
     hashed_password: Mapped[str]
 
     def to_dto_model(self, model=UserSchema) -> UserSchema:
@@ -73,9 +73,6 @@ class Olympiad(Base):
     def to_dto_model(self, model=OlympiadSchema) -> OlympiadSchema:
         return super().to_dto_model(model)
 
-    @hybrid_method
-    def search_string(self):
-        return (' '.join([self.title or ''] + self.subjects)).lower()
 
 
 class Notification(Base):

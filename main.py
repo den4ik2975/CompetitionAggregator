@@ -1,8 +1,3 @@
-import asyncio
-import multiprocessing
-import uvicorn
-
-from src.setup import setup_fastapi, setup_rocketry, setup_logging
 import multiprocessing
 
 import uvicorn
@@ -11,6 +6,7 @@ from src.setup import setup_fastapi, setup_rocketry, setup_logging
 
 if __name__ == "__main__":
     app_fastapi = setup_fastapi()
+
 
     @app_fastapi.on_event("startup")
     async def startup_event():

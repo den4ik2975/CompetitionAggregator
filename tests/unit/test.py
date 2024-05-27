@@ -1,6 +1,3 @@
-import asyncio
-from datetime import datetime
-
 from src.aggregator.database import crud
 from src.setup import get_session_maker
 
@@ -40,5 +37,3 @@ async def test():
                             classes=dct["1"]["grades"],
                             dates=dct['1']['timetable']
                             )
-
-

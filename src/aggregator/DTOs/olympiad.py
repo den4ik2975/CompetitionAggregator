@@ -53,3 +53,23 @@ class OlympiadSchemaView(BaseModel):
     is_favorite: bool = False
     is_notified: bool = False
     is_participant: bool = False
+
+
+class OlympiadSchemaOut(BaseModel):
+    id: int
+    title: str
+    level: Union[int, None] = None
+    dates: Dict[str, List[str]]
+    description: str
+    subjects: List[str]
+    classes: List[int]
+    is_favorite: bool = False
+    is_notified: bool = False
+    is_participant: bool = False
+
+    @field_validator('level')
+    @classmethod
+    def check_level(cls, v):
+        if v not in [None, 0, 1, 2, 3]:
+            raise ValueError('Must be None or int from 0 to 3')
+        return v

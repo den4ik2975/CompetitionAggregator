@@ -10,6 +10,7 @@ from loguru import logger
 from passlib.context import CryptContext
 from rocketry import Rocketry
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from starlette.middleware import Middleware
 
 from src.aggregator.database.connection import initialize_database
 from src.config import Settings
@@ -19,6 +20,7 @@ settings = Settings()
 
 def setup_fastapi() -> FastAPI:
     from src.aggregator.api.router import all_routers
+    from src.aggregator.api.middlewares import AuthenticationMiddleware, DatabaseSessionMiddleware
 
     tags_metadata = [
         {
@@ -51,20 +53,21 @@ def setup_fastapi() -> FastAPI:
         }
     ]
 
-    app_fastapi = FastAPI(
-        title="Competition Aggregator API",
-        openapi_tags=tags_metadata)
-
     origins = settings.fastapi.origins
 
     # noinspection PyTypeChecker
-    app_fastapi.add_middleware(
-        CORSMiddleware,
-        allow_origins=origins,
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
+    app_fastapi = FastAPI(
+        title="Competition Aggregator API",
+        openapi_tags=tags_metadata,
+        middleware=[
+            Middleware(DatabaseSessionMiddleware),
+            Middleware(AuthenticationMiddleware),
+            Middleware(CORSMiddleware,
+                       allow_origins=origins,
+                       allow_credentials=True,
+                       allow_methods=["*"],
+                       allow_headers=["*"])
+        ])
 
     for router in all_routers:
         app_fastapi.include_router(router)
