@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Sequence
+from typing import List, Sequence, Dict
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import async_sessionmaker
@@ -12,16 +12,14 @@ async def add_olympiad(
         session_maker: async_sessionmaker,
         title: str,
         level: int | None = None,
-        dates: List[datetime] = None,
+        dates: Dict[str, List[str]] = None,
         description: str | None = None,
-        subjects: List[int] = None,
+        subjects: List[str] = None,
         classes: List[int] = None,
-        regions: List[int] = None,
         site_data: str | None = None,
 
 ) -> Olympiad:
-    if regions is None:
-        regions = []
+
     if classes is None:
         classes = []
     if subjects is None:
@@ -36,7 +34,6 @@ async def add_olympiad(
         description=description,
         subjects=subjects,
         classes=classes,
-        regions=regions,
         site_data=site_data,
     )
 

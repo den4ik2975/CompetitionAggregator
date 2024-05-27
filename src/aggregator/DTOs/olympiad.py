@@ -8,7 +8,7 @@ class OlympiadSchema(BaseModel):
     id: int
     title: str
     level: Union[int, None] = None
-    dates: Dict[str, List[datetime]]
+    dates: Dict[str, List[str]]
     description: str
     subjects: List[str]
     classes: List[int]
@@ -27,7 +27,7 @@ class OlympiadSchema(BaseModel):
 class OlympiadSchemaAdd(BaseModel):
     title: str
     level: Union[int, None] = None
-    dates: Dict[str, List[datetime]]
+    dates: Dict[str, List[str]]
     description: str
     subjects: List[str]
     classes: List[int]
@@ -46,10 +46,10 @@ class OlympiadSchemaAdd(BaseModel):
 class OlympiadSchemaView(BaseModel):
     id: int
     title: str
-    date: datetime
+    date: datetime | None = None
     description: str
     classes: str  # 9-11 классы
     subjects: str  # "{First}, {Second}"
-    is_favorite: bool
-    is_notified: bool
-    is_participant: bool
+    is_favorite: bool = False
+    is_notified: bool = False
+    is_participant: bool = False

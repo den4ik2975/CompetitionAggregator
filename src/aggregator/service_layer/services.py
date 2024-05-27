@@ -30,22 +30,22 @@ async def get_olympiad(
 @logging_wrapper
 @add_session_maker
 async def get_olympiads(
-        auth: bool,
         session_maker: async_sessionmaker,
 ) -> List[OlympiadSchemaView]:
     olympiads = await crud.get_all_olympiads(session_maker=session_maker)
 
     card_olympiads = []
     for olympiad in olympiads:
+        olympiad.convert_json_fields()
         olympiad = olympiad.to_dto_model()
 
         card_olympiad = OlympiadSchemaView(
             id=olympiad.id,
             title=olympiad.title,
             description=olympiad.description,
-            date=utils.get_nearest_date(olympiad),
-            classes=utils.humanize_classes(olympiad),
-            subjects=utils.optimize_subjects(olympiad)
+            date=await utils.get_nearest_date(olympiad),
+            classes=await utils.humanize_classes(olympiad),
+            subjects=await utils.optimize_subjects(olympiad)
         )
 
         card_olympiads.append(card_olympiad)

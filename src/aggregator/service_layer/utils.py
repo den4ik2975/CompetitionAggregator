@@ -96,11 +96,12 @@ def placeholder(*args, **kwargs):
 
 
 async def get_nearest_date(olympiad: OlympiadSchema) -> datetime:
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now()
 
     for dates in olympiad.dates.values():
-        if now < dates[0]:
-            return dates[0]
+        temp = datetime.strptime(dates[0], '%Y-%m-%d')
+        if now < temp:
+            return temp
 
 
 async def humanize_classes(olympiad: OlympiadSchema) -> str:

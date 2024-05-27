@@ -13,11 +13,9 @@ router_root = APIRouter(
 
 
 @router_root.get("/")
-async def get_olympiads(
-        is_auth: Annotated[bool, Depends(services.is_authenticated)],
-) -> List[OlympiadSchemaView]:
+async def get_olympiads() -> List[OlympiadSchemaView]:
     logger.info('Request for olympiad cards')
 
-    olympiads = await services.get_olympiads(auth=is_auth)
+    olympiads = await services.get_olympiads()
 
     return olympiads
