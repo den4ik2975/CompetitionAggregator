@@ -1,13 +1,13 @@
 from datetime import datetime
 
-from sqlalchemy.ext.asyncio import async_sessionmaker
+from sqlalchemy.ext.asyncio import async_session
 
 from src.aggregator.database import Logs
 
 
 # ------------------ Add ------------------
 async def add_log(
-        session_maker: async_sessionmaker,
+        session: async_session,
         user_id: int,
         log_type: int,
         date: datetime,
@@ -20,8 +20,7 @@ async def add_log(
         text=text
     )
 
-    async with session_maker() as session:
-        session.add(user)
-        await session.commit()
+    session.add(user)
+    await session.commit()
 
-        return user
+    return user

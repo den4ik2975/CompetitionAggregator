@@ -8,7 +8,7 @@ class OlympiadSchema(BaseModel):
     id: int
     title: str
     level: Union[int, None] = None
-    dates: Dict[str, List[datetime]]
+    dates: Dict[str, List[str]]
     description: str
     subjects: List[str]
     classes: List[int]
@@ -27,7 +27,7 @@ class OlympiadSchema(BaseModel):
 class OlympiadSchemaAdd(BaseModel):
     title: str
     level: Union[int, None] = None
-    dates: Dict[str, List[datetime]]
+    dates: Dict[str, List[str]]
     description: str
     subjects: List[str]
     classes: List[int]
@@ -38,15 +38,40 @@ class OlympiadSchemaAdd(BaseModel):
     @field_validator('level')
     @classmethod
     def check_level(cls, v):
-        if v not in [None, 1, 2, 3]:
-            raise ValueError('Must be None or int from 1 to 3')
+        if v not in [None, 0, 1, 2, 3]:
+            raise ValueError('Must be None or int from 0 to 3')
         return v
+
+
+class OlympiadSchemaCard(BaseModel):
+    id: int
+    title: str
+    date: datetime | None = None
+    datestr: str | None = None
+    description: str
+    classes: str  # 9-11 классы
+    subjects: str  # "{First}, {Second}"
+    is_favorite: bool = False
+    is_notified: bool = False
+    is_participant: bool = False
 
 
 class OlympiadSchemaView(BaseModel):
     id: int
     title: str
-    date: datetime
+    level: Union[int, None] = None
+    dates: List[Dict[str, str]]
+    date: str | None = None
     description: str
-    classes: str  # 9-11 классы
-    subjects: str  # "{First}, {Second}"
+    subjects: List[str]
+    classes: str
+    is_favorite: bool = False
+    is_notified: bool = False
+    is_participant: bool = False
+
+    @field_validator('level')
+    @classmethod
+    def check_level(cls, v):
+        if v not in [None, 0, 1, 2, 3]:
+            raise ValueError('Must be None or int from 0 to 3')
+        return v

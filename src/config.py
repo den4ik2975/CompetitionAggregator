@@ -30,16 +30,11 @@ class DatabaseSettings(BaseModel):
     connection_string: str
 
 
-class RedisSettings(BaseModel):
-    broker_url: str
-
-
 class Settings(BaseSettings):
     encryption: EncryptionSettings
     stmp: STMPSettings
     fastapi: FastAPISettings
     database: DatabaseSettings
-    redis: RedisSettings
 
     model_config = SettingsConfigDict(toml_file='config.toml')
 

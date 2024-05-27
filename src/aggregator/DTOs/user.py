@@ -11,6 +11,7 @@ class UserSchema(BaseModel):
     n: int
     favorites: List[int]
     participates: List[int]
+    notifications: List[int]
 
     class Config:
         from_attributes = True

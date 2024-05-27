@@ -1,13 +1,44 @@
-import asyncio
-
-from src.aggregator.service_layer.utils import send_email
-from src.setup import setup_email_server
+from src.aggregator.database import crud
+from src.setup import get_session_maker
 
 
 async def test():
-    server = await setup_email_server()
-    await send_email(server, 'den41k2975@yandex.ru', 'Notification test')
-    server.close()
+    dct = {
+        "1": {
+            "title": "Московская математическая олимпиада",
+            "rating": "9,0",
+            "classes": [
+                "Математика"
+            ],
+            "description": "Московская математическая олимпиада – очное соревнование для школьников 8-11 классов. Проводится с 1935 года ежегодно в МГУ имени М. В. Ломоносова.  Любой ученик 8-10 классов может зарегистрироваться на сайте и прийти на олимпиаду. А вот одиннадцатиклассникам сначала нужно пройти отборочный тур. Победители и призеры прошлогодней олимпиады за 10 класс и обладатели дипломов или премий осеннего тура Турнира городов приглашаются вне конкурса. Олимпиада для 11 классов проводится в два дня: по итогам первого дня часть участников пригласят на второй. В варианте обычно 6 задач, на решение которых дается 5 часов. Занимательные задания не требуют знаний, выходящих за пределы школьного курса. Победителей и призеров награждают книгами по математике.",
+            "grades": [
+                8,
+                9,
+                10,
+                11
+            ],
+            "timetable": {
+                "Олимпиада для 8-10 классов": [
+                    "2024-03-10"
+                ],
+                "Первый день заключительного этапа для 11 класса": [
+                    "2024-03-10"
+                ],
+                "Второй день заключительного этапа для 11 класса": [
+                    "2024-03-30"
+                ]
+            }
+        }}
+
+    await crud.add_olympiad(session=(await get_session_maker())(),
+                            title=dct["1"]["title"],
+                            description=dct["1"]["description"],
+                            subjects=dct["1"]["classes"],
+                            classes=dct["1"]["grades"],
+                            dates=dct['1']['timetable']
+                            )
 
 
-asyncio.run(test())
+async def test2():
+    from src.aggregator.database.crud import get_olympiad_by_id
+    await get_olympiad_by_id((await get_session_maker())(), 1)

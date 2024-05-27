@@ -1,5 +1,5 @@
 import asyncio
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from loguru import logger
 
@@ -13,38 +13,37 @@ async def send_notifications():
     start = 0
     end = 100
     session_maker = await get_session_maker()
-    date_now = datetime.now()
+    now = datetime.now()
+    date_now = datetime(now.year, now.month, now.day)
 
     smtp_server = await setup_email_server()
 
     logger.info('Sending notifications started')
 
-    while True:
-        notifications = await crud.get_limited_notifications(session_maker=session_maker,
-                                                             start=start,
-                                                             end=end)
+    async with session_maker() as db_session:
+        while True:
+            notifications = await crud.get_limited_notifications(session=db_session,
+                                                                 start=start,
+                                                                 end=end)
 
-        if not notifications:
-            break
+            if not notifications:
+                break
 
-        for notification in notifications:
-            ntf_date = notification.date
-            user = await crud.get_user_by_id(session_maker=session_maker,
-                                             user_id=notification.user_id)
+            for notification in notifications:
+                if notification.date == date_now or notification.date == date_now - timedelta(days=1):
+                    user = await crud.get_user_by_id(session=db_session,
+                                                     user_id=notification.user_id)
 
-            if ntf_date.year == date_now.year and ntf_date.month == date_now.month and ntf_date.day == date_now.day + user.n:
-                olympiad = await crud.get_olympiad_by_id(session_maker=session_maker,
-                                                         olympiad_id=notification.olympiad_id)
-                text = f'Напоминание об олимпиаде {olympiad.title}'
-                await send_email(email_server=smtp_server,
-                                 receiver_email=user.mail,
-                                 body=text)
-                await crud.delete_notification_by_id(session_maker=session_maker,
-                                                     notification_id=notification.id)
+                    await send_email(email_server=smtp_server,
+                                     receiver_email=user.mail,
+                                     body=notification.text)
 
-            await asyncio.sleep(0)
+                    await crud.delete_notification_by_id(session=db_session,
+                                                         notification_id=notification.id)
 
-        start = end
-        end += 100
+                    await asyncio.sleep(0)
+
+            start = end
+            end += 100
 
     logger.info('Sending notifications completed')
