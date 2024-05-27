@@ -1,30 +1,28 @@
-<script>
-  export default {
-    data() {
-      return {
-        grades: ['1 класс', '2 класс', '3 класс', '4 класс', '5 класс', '6 класс', '7 класс', '8 класс', '9 класс', '10 класс', '11 класс'],
-        subjects: ['Физика', 'Математика', 'Химия', 'Биология', 'История', 'Литература', 'Русский язык', 'Обществознание', 'Инностранные языки'],
-      }
-    }
-  }
+<script setup>
+  defineProps ({
+    closeDrawer: Function,
+    onChangeFilter: Function,
+    grades: Object,
+    subjects: Object,
+  })
 
 </script>
 
 <template>
 
-  <div class="fixed z-50 top-0 h-full w-full bg-black opacity-70" />
+  <div @click="closeDrawer" class="fixed z-50 top-0 h-full w-full bg-black opacity-70" />
   <div class="filter-main fixed h-full z-50 top-0 bg-white p-8">
 
-    <button class="flex items-center gap-1 absolute right-8 top-8 text-gray-500">Закрыть
+    <button @click="closeDrawer" class="flex items-center gap-1 absolute right-8 top-8 text-gray-500">Закрыть
       <img src="/close.svg" alt="Close" />
     </button>
 
     <section>
       <h2 class="text-gray-500">Класс</h2>
       <ul class="grades-list my-7 text-base">
-        <li v-for="grade in grades" :key="grade" class="flex items-center gap-1.5">
-          <input type="checkbox" :id="grade">
-          <label :for="grade">{{ grade }}</label>
+        <li v-for="grade in grades" :key="grade.id" class="flex items-center gap-1.5">
+          <input type="checkbox" @change="onChangeFilter" :checked="grade.checked" id="grade" :value="grade.name">
+          <label :for="grade">{{ grade.name }}</label>
         </li>
       </ul>
     </section>
@@ -32,9 +30,9 @@
     <section>
       <h2 class="text-gray-500">Предмет</h2>
       <ul class="subjects-list my-7 text-base">
-        <li v-for="subject in subjects" :key="subject" class="flex items-center gap-1.5">
-          <input type="checkbox" :id="subject">
-          <label :for="subject">{{ subject }}</label>
+        <li v-for="subject in subjects" :key="subject.id" class="flex items-center gap-1.5">
+          <input type="checkbox" @change="onChangeFilter" :checked="subject.checked" id="subject" :value="subject.name">
+          <label :for="subject">{{ subject.name }}</label>
         </li>
       </ul>
     </section>

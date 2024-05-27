@@ -16,10 +16,11 @@ defineProps({
           :date="item.date"
           :info="item.info"
           :grade="item.grade"
-          :subjects="item.subjects"
+          :subjects="item.subjects.split(', ')"
           :onClickFavorite="() => onClickFavorite(item)"
           :is-favorite="item.isFavorite"
-          :key="item.id"/>
+          :key="item.id"
+    />
   </div>
 </template>
 

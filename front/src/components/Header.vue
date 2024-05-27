@@ -6,12 +6,14 @@
 
 <template>
   <header class="bg-white flex justify-between shadow-md px-6 py-3 z-30 fixed top-0 w-full">
-    <div class="flex items-center ml-12 mr-2 cursor-pointer">
-      <img src="/logo.svg" alt="Logo" />
-      <div>
-        <a class="logo">Olympozavr</a>
+    <router-link to="/">
+      <div class="flex items-center ml-12 mr-2">
+        <img src="/logo.svg" alt="Logo" />
+        <div>
+          <a class="logo">Olympozavr</a>
+        </div>
       </div>
-    </div>
+    </router-link>
 
     <div class="search rounded flex justify-between items-center p-1.5">
 
@@ -21,14 +23,18 @@
     </div>
 
     <ul class="flex items-center gap-14" >
-      <li class="flex items-center gap-1">
-        <img src="/favorite.svg" alt="Favorite" />
-        <a href="https://htmlbook.ru/html/BUTTON" >Избранное</a>
-      </li>
-      <li class="flex items-center gap-1 pr-9">
-        <img src="/profile.svg" alt="Profile" />
-        <a href="https://htmlbook.ru/html/BUTTON" >Войти</a>
-      </li>
+      <router-link to="/favorites">
+        <li class="flex items-center gap-1">
+          <img src="/favorite.svg" alt="Favorite" />
+          <a href="https://htmlbook.ru/html/BUTTON" >Избранное</a>
+        </li>
+      </router-link>
+      <router-link to="/user">
+        <li class="flex items-center gap-1 pr-9">
+          <img src="/profile.svg" alt="Profile" />
+          <a href="https://htmlbook.ru/html/BUTTON" >Войти</a>
+        </li>
+      </router-link>
     </ul>
 
   </header>
