@@ -23,6 +23,20 @@ async def get_olympiads(
         subjects: Annotated[List[str] | None, Query()] = None,
         grades: Annotated[List[int] | None, Query()] = None
 ) -> List[OlympiadSchemaCard]:
+    """
+    Retrieve a list of olympiads based on search, filter, and sorting criteria.
+
+    Args:
+        auth (UserSchema | bool): Authentication data for the user.
+        db_session (async_session): Asynchronous database session.
+        search (str | None, optional): Search string to filter olympiads by name or description.
+        sortBy (str | None, optional): Sort criteria for the olympiad list.
+        subjects (List[str] | None, optional): List of subjects to filter olympiads by.
+        grades (List[int] | None, optional): List of grades to filter olympiads by.
+
+    Returns:
+        List[OlympiadSchemaCard]: List of olympiads matching the search, filter, and sorting criteria.
+    """
     logger.info('Request for olympiad search')
 
     if search is not None:
@@ -38,8 +52,7 @@ async def get_olympiads(
 
     else:
         olympiads = await services.get_olympiads(auth=auth,
-                                                 db_session=db_session
-                                                 )
+                                                 db_session=db_session)
 
     if sortBy is not None:
         olympiads = await services.sort_olympiads(sort_clause=sortBy,

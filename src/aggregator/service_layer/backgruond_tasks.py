@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from loguru import logger
 
 from src.aggregator.database import crud
+from src.aggregator.service_layer.parsers.parsers import ParserOlymp
 from src.aggregator.service_layer.utils import send_email, logging_wrapper
 from src.setup import get_session_maker, setup_email_server
 
@@ -47,3 +48,16 @@ async def send_notifications():
             end += 100
 
     logger.info('Sending notifications completed')
+
+
+@logging_wrapper
+async def update_olympiads_info():
+    olympiad_parser = ParserOlymp()
+
+    logger.info('Started getting ids')
+    await olympiad_parser.get_valid_ids()
+    logger.info('Finished getting ids')
+
+    logger.info('Started parsing olympiads')
+    await olympiad_parser.run_process()
+    logger.info('Finished parsing olympiads')
