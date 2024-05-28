@@ -39,18 +39,30 @@ async def get_olympiads(
     """
     logger.info('Request for olympiad search')
 
+    olympiads_search, olympiads_filter, olympiads = [], [], []
+
     if search is not None:
-        olympiads = await services.search_olympiads(auth=auth,
-                                                    search_string=search,
-                                                    db_session=db_session)
+        olympiads_search = await services.search_olympiads(auth=auth,
+                                                           search_string=search,
+                                                           db_session=db_session)
 
-    elif subjects is not None or grades is not None:
-        olympiads = await services.filter_olympiads(subjects=subjects,
-                                                    grades=grades,
-                                                    auth=auth,
-                                                    db_session=db_session)
+    if subjects is not None or grades is not None:
+        olympiads_filter = await services.filter_olympiads(subjects=subjects,
+                                                           grades=grades,
+                                                           auth=auth,
+                                                           db_session=db_session)
 
-    else:
+    if olympiads_search and olympiads_filter:
+        olympiads = []
+        for olympiad in olympiads_filter:
+            if olympiad in olympiads_search:
+                olympiads.append(olympiad)
+    elif olympiads_search:
+        olympiads = olympiads_search
+    elif olympiads_filter:
+        olympiads = olympiads_filter
+
+    if not olympiads:
         olympiads = await services.get_olympiads(auth=auth,
                                                  db_session=db_session)
 

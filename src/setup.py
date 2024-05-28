@@ -57,6 +57,10 @@ def setup_fastapi() -> FastAPI:
         {
             "name": "Notifications",
             "description": "Actions with notifications",
+        },
+        {
+            "name": "Changer",
+            "description": "Changes user n"
         }
     ]
 

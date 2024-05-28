@@ -555,7 +555,17 @@ async def sort_olympiads(
         olympiads.sort(key=lambda x: x.title)
 
     elif sort_clause == 'date':
-        olympiads.sort(key=lambda x: x.date)
+        to_sort = []
+        to_back = []
+
+        for olympiad in olympiads:
+            if isinstance(olympiad.date, datetime):
+                to_sort.append(olympiad)
+            else:
+                to_back.append(olympiad)
+        to_sort.sort(key=lambda x: x.date)
+
+        olympiads = to_sort + to_back
 
     return olympiads
 

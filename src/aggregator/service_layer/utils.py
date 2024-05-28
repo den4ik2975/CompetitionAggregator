@@ -282,7 +282,6 @@ async def convert_olympiads_to_view_format(
     return card_olympiads
 
 
-
 async def jsonify_dates(olympiad: OlympiadSchema) -> List[Dict[str, str]]:
     """
     Reformatting stages json for frontend
