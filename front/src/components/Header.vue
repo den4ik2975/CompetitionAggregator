@@ -10,7 +10,7 @@
       <div class="flex items-center ml-12 mr-2">
         <img src="/logo.svg" alt="Logo" />
         <div>
-          <a class="logo">Olympozavr</a>
+          <a class="logo">Олимпозавр</a>
         </div>
       </div>
     </router-link>
@@ -18,7 +18,7 @@
     <div class="search rounded flex justify-between items-center p-1.5">
 
       <input @input="onChangeSearchInput" class="search-field rounded p-1.5" placeholder="Введите название олимпиады...">
-      <label class="search-button flex items-center gap-1"><img src="/search.svg" alt="Search"/>Поиск</label>
+      <button class="search-button flex items-center gap-1"><img src="/search.svg" alt="Search"/>Поиск</button>
 
     </div>
 

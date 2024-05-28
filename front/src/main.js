@@ -19,8 +19,8 @@ const routes = [
   { path: '/favorites', name: 'Favorites', component: Favorites },
   { path: '/notifications', name: 'Notifications', component: Notifications },
   { path: '/participants', name: 'Participants', component: Participants },
-  { path: '/user', name: 'User', component: User },
-  { path: '/olympiad', name: 'Olympiad', component: Olympiad },
+  { path: '/user', name: 'User', component: User},
+  { path: '/olympiad/:id', name: 'Olympiad', component: Olympiad, props: true },
 ]
 
 const router = createRouter({

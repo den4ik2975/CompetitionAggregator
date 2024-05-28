@@ -21,7 +21,7 @@
       <h2 class="text-gray-500">Класс</h2>
       <ul class="grades-list my-7 text-base">
         <li v-for="grade in grades" :key="grade.id" class="flex items-center gap-1.5">
-          <input type="checkbox" @change="onChangeFilter" :checked="grade.checked" id="grade" :value="grade.name">
+          <input type="checkbox" @change="onChangeFilter" :checked="grade.checked" id="grades" :value="grade.id">
           <label :for="grade">{{ grade.name }}</label>
         </li>
       </ul>
@@ -31,7 +31,7 @@
       <h2 class="text-gray-500">Предмет</h2>
       <ul class="subjects-list my-7 text-base">
         <li v-for="subject in subjects" :key="subject.id" class="flex items-center gap-1.5">
-          <input type="checkbox" @change="onChangeFilter" :checked="subject.checked" id="subject" :value="subject.name">
+          <input type="checkbox" @change="onChangeFilter" :checked="subject.checked" id="subjects" :value="subject.name">
           <label :for="subject">{{ subject.name }}</label>
         </li>
       </ul>

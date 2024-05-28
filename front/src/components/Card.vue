@@ -1,11 +1,12 @@
 <script setup>
+
   defineProps({
     id: Number,
-    name: String,
+    title: String,
     date: String,
-    info: String,
+    description: String,
     subjects: Array,
-    grade: String,
+    classes: String,
     isFavorite: Boolean,
     isParticipant: Boolean,
     isNotified: Boolean,
@@ -34,16 +35,16 @@
 
     </div>
 
-    <router-link :to="'/olympiad/'">
+    <router-link :to="{name: 'Olympiad', params: {id: id}}">
       <div>
         <div class="flex items-center gap-1.5 text-sm font-bold">
           <p v-for="subject in subjects" :key="subject" :class="subject">{{ subject }}</p>
-          <p class="ml-1 text-gray-500">{{ grade }}</p>
+          <p class="ml-1 text-gray-500">{{ classes }}</p>
         </div>
 
-        <a class="text-2xl">{{ name }}</a>
+        <a class="text-2xl">{{ title }}</a>
         <p class="date text-2xl">{{ date }}</p>
-        <p class="text-base mt-4">{{ info }}</p>
+        <p class="text-base mt-4">{{ description }}</p>
       </div>
     </router-link>
 
@@ -52,72 +53,5 @@
 </template>
 
 <style scoped>
-  .date {
-    color: #A30000;
-  }
-
-  .История {
-    background-color: #EAD5CA;
-    color: #8E4F2D;
-    font-weight: bold;
-    padding: 4px 8px 4px 8px;
-    border-radius: 4px;
-  }
-  .Физика {
-    background-color: #E7C2C2;
-    color: #9A4A4A;
-    font-weight: bold;
-    padding: 4px 8px 4px 8px;
-    border-radius: 4px;
-  }
-  .Химия {
-    background-color: #CBE1E0;
-    color: #287975;
-    font-weight: bold;
-    padding: 4px 8px 4px 8px;
-    border-radius: 4px;
-  }
-  .Биология {
-    background-color: #CCDDC9;
-    color: #3E6F36;
-    font-weight: bold;
-    padding: 4px 8px 4px 8px;
-    border-radius: 4px;
-  }
-  .Математика {
-    background-color: #C5D7E9;
-    color: #33628D;
-    font-weight: bold;
-    padding: 4px 8px 4px 8px;
-    border-radius: 4px;
-  }
-  .Обществознание {
-    background-color: #D9D1E7;
-    color: #5E4A81;
-    font-weight: bold;
-    padding: 4px 8px 4px 8px;
-    border-radius: 4px;
-  }
-  .Языковедение {
-    background-color: #EFDEEC;
-    color: #AA629D;
-    font-weight: bold;
-    padding: 4px 8px 4px 8px;
-    border-radius: 4px;
-  }
-  .Литература {
-    background-color: #F0E2CC;
-    color: #6e634a;
-    font-weight: bold;
-    padding: 4px 8px 4px 8px;
-    border-radius: 4px;
-  }
-  .Информатика {
-    background-color: #DED1ED;
-    color: #724F9D;
-    font-weight: bold;
-    padding: 4px 8px 4px 8px;
-    border-radius: 4px;
-  }
 
 </style>

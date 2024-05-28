@@ -5,8 +5,8 @@ import { onMounted, ref, reactive, watch, provide } from 'vue'
   import Header from './components/Header.vue'
   import Drawer from './components/Drawer.vue'
 
-  const url = 'https://77cfb0c9bf907cd8.mokky.dev'
-
+  import { URL } from './utils/constants.js'
+  import Auth from '@/components/Auth.vue'
   const items = ref([])
 
   const drawerOpen = ref(false)
@@ -34,10 +34,10 @@ import { onMounted, ref, reactive, watch, provide } from 'vue'
   }
 
   const onChangeFilter = (event) => {
-    if (filters.filterBy.includes(`${event.target.id}[]=${event.target.value}&`)) {
-      filters.filterBy = filters.filterBy.replace(`${event.target.id}[]=${event.target.value}&`, '')
+    if (filters.filterBy.includes(`${event.target.id}=${event.target.value}&`)) {
+      filters.filterBy = filters.filterBy.replace(`${event.target.id}=${event.target.value}&`, '')
     } else {
-      filters.filterBy += `${event.target.id}[]=${event.target.value}&`;
+      filters.filterBy += `${event.target.id}=${event.target.value}&`;
     }
   }
 
@@ -83,46 +83,57 @@ import { onMounted, ref, reactive, watch, provide } from 'vue'
 
   const grades = [
     {
+      "id": '1',
       "name": "1 класс",
       "checked": false,
     },
     {
+      "id": '2',
       "name": "2 класс",
       "checked": false,
     },
     {
+      "id": '3',
       "name": "3 класс",
       "checked": false,
     },
     {
+      "id": '4',
       "name": "4 класс",
       "checked": false,
     },
     {
+      "id": '5',
       "name": "5 класс",
       "checked": false,
     },
     {
+      "id": '6',
       "name": "6 класс",
       "checked": false,
     },
     {
+      "id": '7',
       "name": "7 класс",
       "checked": false,
     },
     {
+      "id": '8',
       "name": "8 класс",
       "checked": false,
     },
     {
+      "id": '9',
       "name": "9 класс",
       "checked": false,
     },
     {
+      "id": '10',
       "name": "10 класс",
       "checked": false,
     },
     {
+      "id": '11',
       "name": "11 класс",
       "checked": false,
     },
@@ -135,11 +146,11 @@ import { onMounted, ref, reactive, watch, provide } from 'vue'
           parentId: item.id,
         };
         item.isFavorite = true;
-        const { data } = await axios.post(url + `/favorites`, obj);
+        const { data } = await axios.post(URL + `/favorites`, obj);
         item.favoriteId = data.id;
       } else {
         item.isFavorite = false;
-        await axios.delete(url + `/favorites/${item.favoriteId}`);
+        await axios.delete(URL + `/favorites/${item.favoriteId}`);
         item.favoriteId = null;
       }
 
@@ -150,7 +161,7 @@ import { onMounted, ref, reactive, watch, provide } from 'vue'
 
   const fetchFavorites = async () => {
     try {
-      const { data: favorites } = await axios.get(url + `/favorites`)
+      const { data: favorites } = await axios.get(URL + `/`)
       items.value = items.value.map(item => {
         const favorite = favorites.find(favorite => favorite.parentId === item.id);
 
@@ -175,17 +186,19 @@ import { onMounted, ref, reactive, watch, provide } from 'vue'
       for (const subject of subjects) { subject.checked = false }
       for (const grade of grades) { grade.checked = false }
 
-      const { data } = await axios.get(
-        url + `/olympiad?sortBy=${filters.sortBy}&name=*${filters.searchQuery}*&${filters.filterBy}`)
+      console.log(URL + `/?sortBy=${filters.sortBy}&search=${filters.searchQuery}&${filters.filterBy}`)
 
+      const { data } = await axios.get(
+        URL + `?sortBy=${filters.sortBy}&search=${filters.searchQuery}&${filters.filterBy}`)
+
+      // CHECKED FILTER
       for (const element of filters.filterBy.split('&')) {
         if (element.split('=')[1]) {
           checkedIds.push(element.split('=')[1])
         }
       }
-
       for (const subject of subjects) { if (checkedIds.includes(subject.name)) { subject.checked = true }}
-      for (const grade of grades) { if (checkedIds.includes(grade.name)) { grade.checked = true }}
+      for (const grade of grades) { if (checkedIds.includes(grade.id)) { grade.checked = true }}
 
       items.value = data.map((obj) => ({
         ...obj,
@@ -194,6 +207,7 @@ import { onMounted, ref, reactive, watch, provide } from 'vue'
         isParticipant: false,
         isNotified: false,
       }))
+
     } catch (error) {
       console.log(error)
     }
@@ -210,7 +224,7 @@ import { onMounted, ref, reactive, watch, provide } from 'vue'
   provide('items', items)
   provide('onChangeSelect', onChangeSelect)
   provide('openDrawer', openDrawer)
-  provide('url', url)
+  provide('url', URL)
 
 </script>
 
@@ -219,10 +233,13 @@ import { onMounted, ref, reactive, watch, provide } from 'vue'
   <Header :onChangeSearchInput="onChangeSearchInput"/>
 
   <div class="main w-3/5 m-auto pt-2 relative">
+    <Auth/>
 
     <router-view></router-view>
 
   </div>
+
+  <div ref="sentinel"></div>
 
 </template>
 

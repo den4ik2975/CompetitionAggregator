@@ -24,3 +24,79 @@ body::-webkit-scrollbar-thumb {
     border-radius: 8px;
     background-color: #bababa;
 }
+
+.date {
+    color: #A30000;
+}
+
+.История {
+    background-color: #EAD5CA;
+    color: #8E4F2D;
+    font-weight: bold;
+    padding: 4px 8px 4px 8px;
+    border-radius: 4px;
+}
+.Физика {
+    background-color: #E7C2C2;
+    color: #9A4A4A;
+    font-weight: bold;
+    padding: 4px 8px 4px 8px;
+    border-radius: 4px;
+}
+.Химия {
+    background-color: #CBE1E0;
+    color: #287975;
+    font-weight: bold;
+    padding: 4px 8px 4px 8px;
+    border-radius: 4px;
+}
+.Биология {
+    background-color: #CCDDC9;
+    color: #3E6F36;
+    font-weight: bold;
+    padding: 4px 8px 4px 8px;
+    border-radius: 4px;
+}
+.Математика {
+    background-color: #C5D7E9;
+    color: #33628D;
+    font-weight: bold;
+    padding: 4px 8px 4px 8px;
+    border-radius: 4px;
+}
+.Обществознание {
+    background-color: #D9D1E7;
+    color: #5E4A81;
+    font-weight: bold;
+    padding: 4px 8px 4px 8px;
+    border-radius: 4px;
+}
+.Языковедение {
+    background-color: #EFDEEC;
+    color: #AA629D;
+    font-weight: bold;
+    padding: 4px 8px 4px 8px;
+    border-radius: 4px;
+}
+.Литература {
+    background-color: #F0E2CC;
+    color: #6e634a;
+    font-weight: bold;
+    padding: 4px 8px 4px 8px;
+    border-radius: 4px;
+}
+.Информатика {
+    background-color: #DED1ED;
+    color: #724F9D;
+    font-weight: bold;
+    padding: 4px 8px 4px 8px;
+    border-radius: 4px;
+}
+
+.Другое {
+    background-color: #e3e3e3;
+    color: #6e6e6e;
+    font-weight: bold;
+    padding: 4px 8px 4px 8px;
+    border-radius: 4px;
+}
