@@ -180,7 +180,9 @@ async def jsonify_dates(olympiad: OlympiadSchema) -> List[Dict[str, str]]:
         temp = {'name': stage, 'date_start': dates[0]}
 
         if len(dates) == 2:
-            temp['date_end'] = dates[1]
+            temp['date_end'] = f'-{dates[1]}'
+        else:
+            temp['date_end'] = ''
 
         result.append(temp.copy())
 
