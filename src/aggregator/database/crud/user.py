@@ -16,7 +16,7 @@ async def add_user(
         favorites: List[int | None] = None,
         participates: List[int | None] = None,
         notifications: List[int | None] = None
-) -> User:
+) -> User | None:
     if favorites is None:
         favorites = []
 
@@ -25,6 +25,9 @@ async def add_user(
 
     if notifications is None:
         notifications = []
+
+    if await get_user_by_email(session, mail) or await get_user_by_username(session, username):
+        return None
 
     user = User(
         username=username,

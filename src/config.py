@@ -31,6 +31,11 @@ class DatabaseSettings(BaseModel):
 
 
 class Settings(BaseSettings):
+    """
+    Pydantic settings class for the project
+    All config are stored in config.toml
+    """
+
     encryption: EncryptionSettings
     stmp: STMPSettings
     fastapi: FastAPISettings

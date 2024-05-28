@@ -1,17 +1,23 @@
-import aiohttp
-import aiofile
 import asyncio
 import json
 import re
+from datetime import datetime
+
+import aiofile
+import aiohttp
 from bs4 import BeautifulSoup
-from datetime import datetime, timedelta
+
+from src.aggregator.database import crud
+from src.setup import get_session_maker
 
 
 class ParserOlymp:
     # URL страницы олимпиады без id
     _main_url = 'https://olimpiada.ru/activity/'
     _file_path = 'olympiads.json'
-    _ids_path = 'ids.txt'
+    _ids_path = 'src/aggregator/service_layer/parsers/ids.txt'
+    _include = {'История', 'Физика', 'Литература', 'Языковедение', 'Обществознание', 'Биология', 'Информатика',
+                'Математика', 'Химия', 'Английский язык', 'Русский язык'}
     _date_ru = {
         'янв': 1,
         'фев': 2,
@@ -47,7 +53,7 @@ class ParserOlymp:
         async with semaphore:
             html = await self.fetch_with_retries(session, url)
             if html:
-                olymp_data = await self.get_info_from_html(html)
+                olymp_data = await self.get_info_from_html(html, _id)
                 return _id, olymp_data
             else:
                 await asyncio.sleep(delay)  # Задержка между запросами
@@ -80,13 +86,17 @@ class ParserOlymp:
             ids = await f.read()
             return ids.splitlines()
 
-    @staticmethod
-    async def get_classes(soup) -> list | None:
+    async def get_classes(self, soup) -> list | None:
         html = soup.find('div', class_='subject_tags_full')
         if html:
             classes_text = html.text.replace('\n', '').replace('\xa0', ' ')
             classes = [item.strip() for item in re.findall(r'[А-Я]+[^А-Я]+', classes_text)]
-            return classes
+
+            needed_classes = list(set(classes) & set(self._include))
+            if len(needed_classes) == 0:
+                needed_classes = ['Другое']
+
+            return needed_classes
 
     @staticmethod
     async def get_description(soup) -> str | None:
@@ -121,13 +131,13 @@ class ParserOlymp:
                         start_date = datetime(day=day1, month=mouth1, year=year1)
                         end_date = datetime(day=day2, month=mouth2, year=year2)
 
-                        date_list = [d.strftime("%Y-%m-%d") for d in (start_date, end_date)]
+                        date_list = [d.strftime("%b %d") for d in (start_date, end_date)]
 
                     else:
                         mouth1 = self._date_ru[dt[-1]]
                         year1 = 2024 if mouth1 <= datetime.now().month else 2023
 
-                        date_list = [datetime(day=day1, month=mouth1, year=year1).strftime("%Y-%m-%d")]
+                        date_list = [datetime(day=day1, month=mouth1, year=year1).strftime("%b %d")]
 
                     stages[stage] = date_list
 
@@ -144,7 +154,7 @@ class ParserOlymp:
         grades = [i for i in range(int(start), int(end) + 1)]
         return grades
 
-    async def get_info_from_html(self, html) -> dict | None:
+    async def get_info_from_html(self, html, _id) -> dict | None:
         soup = BeautifulSoup(html, 'html.parser')
         try:
             div_left = soup.find('div', class_='left')
@@ -161,7 +171,8 @@ class ParserOlymp:
                 'classes': classes,
                 'description': description,
                 'grades': grades,
-                'timetable': timetable
+                'timetable': timetable,
+                'site_data': _id
             }
 
             return olymp_data
@@ -173,6 +184,7 @@ class ParserOlymp:
         await self.clear_json()
 
         tasks = []
+        db_sessionmaker = await get_session_maker()
         semaphore = asyncio.Semaphore(100000)
 
         async with aiohttp.ClientSession() as session:
@@ -183,9 +195,18 @@ class ParserOlymp:
 
             results = await asyncio.gather(*tasks)
 
-            for _id, olymp_data in results:
-                if olymp_data:
-                    await self.write_json(olymp_data, _id)
+            async with db_sessionmaker() as db_session:
+                for _id, olymp_data in results:
+                    if olymp_data and olymp_data['timetable'] != 'В этом году олимпиада не проводится':
+                        if olymp_data['timetable'] != 'Расписание олимпиады в этом году пока не известно':
+                            await crud.add_olympiad(session=db_session,
+                                                    title=olymp_data['title'],
+                                                    classes=olymp_data['grades'],
+                                                    description=olymp_data['description'],
+                                                    subjects=olymp_data['classes'],
+                                                    dates=olymp_data['timetable'],
+                                                    site_data=olymp_data['site_data'])
+                        # await self.write_json(olymp_data, _id)
 
     async def write_json(self, olymp_data, _id) -> None:
         with open(self._file_path, 'r', encoding='utf-8') as f:
@@ -205,7 +226,3 @@ class ParserOlymp:
 async def main():
     parser = ParserOlymp()
     await parser.run_process()
-
-
-if __name__ == '__main__':
-    asyncio.run(main())

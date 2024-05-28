@@ -9,6 +9,7 @@ from fastapi.security import OAuth2PasswordBearer
 from loguru import logger
 from passlib.context import CryptContext
 from rocketry import Rocketry
+from rocketry.conds import weekly
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from starlette.middleware import Middleware
 
@@ -19,6 +20,12 @@ settings = Settings()
 
 
 def setup_fastapi() -> FastAPI:
+    """
+    Setups FastAPI app providing docs, origins, middlewares and routers
+
+    Returns: FastAPI app
+
+    """
     from src.aggregator.api.router import all_routers
     from src.aggregator.api.middlewares import AuthenticationMiddleware, DatabaseSessionMiddleware
 
@@ -76,7 +83,13 @@ def setup_fastapi() -> FastAPI:
 
 
 def setup_rocketry() -> None:
-    from src.aggregator.service_layer.backgruond_tasks import send_notifications
+    """
+    Setups Rocketry (task scheduler) for background tasks: send notifications and parse olympiads
+
+    Returns: None
+
+    """
+    from src.aggregator.service_layer.backgruond_tasks import send_notifications, update_olympiads_info
 
     app_rocketry = Rocketry(execution="async")
 
@@ -86,10 +99,22 @@ def setup_rocketry() -> None:
 
         await send_notifications()
 
+    @app_rocketry.task(weekly.on("Monday"))
+    async def upd_info():
+        await asyncio.sleep(0)
+
+        await update_olympiads_info()
+
     asyncio.run(app_rocketry.serve())
 
 
 async def get_session_maker() -> async_sessionmaker:
+    """
+    Setups session maker getter for database
+
+    Returns: async_sessionmaker
+
+    """
     engine = create_async_engine(settings.database.connection_string)
     session_maker = async_sessionmaker(engine, expire_on_commit=False)
 
@@ -99,12 +124,23 @@ async def get_session_maker() -> async_sessionmaker:
 
 
 async def setup_email_server() -> smtplib.SMTP_SSL:
+    """
+    Setups email server for sending ntfs
+
+    Returns: server
+    """
     email_server = smtplib.SMTP_SSL(settings.stmp.server, settings.stmp.port, context=ssl.create_default_context())
     email_server.login(settings.stmp.name, settings.stmp.password)
     return email_server
 
 
 def setup_logging():
+    """
+    Setups loguru
+
+    Returns: None
+
+    """
     from src.aggregator.service_layer.utils import database_sink
 
     logger.remove()

@@ -18,13 +18,18 @@ async def add_olympiad(
         classes: List[int] = None,
         site_data: str | None = None,
 
-) -> Olympiad:
+) -> Olympiad | None:
     if classes is None:
         classes = []
     if subjects is None:
         subjects = []
     if dates is None:
         dates = []
+
+    if site_data is not None:
+        olymp = await get_olympiad_by_site_data(session, site_data)
+        if olymp is not None:
+            return None
 
     olympiad = Olympiad(
         title=title,
@@ -50,6 +55,24 @@ async def get_olympiad_by_id(
     stmt = select(Olympiad).where(Olympiad.id == olympiad_id)
     olympiad = await session.scalar(stmt)
 
+    if olympiad is None:
+        return None
+
+    olympiad.convert_json_fields()
+
+    return olympiad
+
+
+async def get_olympiad_by_site_data(
+        session: async_session,
+        site_data: str
+) -> Olympiad | None:
+    stmt = select(Olympiad).where(Olympiad.site_data == site_data)
+    olympiad = await session.scalar(stmt)
+
+    if olympiad is None:
+        return None
+
     olympiad.convert_json_fields()
 
     return olympiad
@@ -70,6 +93,7 @@ async def search_for_olympiads(
         session: async_session,
         search_string: str
 ) -> Sequence[Olympiad]:
+    # Search works fine
     search_pattern = f"%{search_string[1:-1].lower()}%"
     stmt = (
         select(Olympiad)
@@ -88,6 +112,7 @@ async def filter_olympiads(
         grades: List[int] | None,
         session: async_session
 ) -> Sequence[Olympiad]:
+    # This FUCKING SQLAlchemy doesn't work. So doing python shit
     all_olympiads = await get_all_olympiads(session=session)
 
     if subjects is not None:
