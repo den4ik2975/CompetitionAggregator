@@ -243,6 +243,7 @@ cython_debug/
 #.idea/
 
 ### App specific
+.idea/
 config.toml
 data.sqlite
 data/
